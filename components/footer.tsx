@@ -28,7 +28,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-gold/10 bg-[#080605] pb-10 pt-20 text-ivory/80 md:pt-28">
+    <footer className="relative overflow-hidden border-t border-gold/10 bg-[#080605] pt-20 text-ivory/80 md:pt-28">
       <div className="mx-auto max-w-[1440px] px-5 md:px-10">
         <RevealText
           as="h2"
@@ -113,6 +113,51 @@ export default function Footer() {
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-ivory/10 pt-6 text-[11px] text-ivory/35 md:flex-row">
           <p>{t.footer.rights}</p>
           <p>{t.footer.made} ✦</p>
+        </div>
+      </div>
+
+      {/* ── Developer credit bar ────────────────────────────── */}
+      <div className="relative mt-10 border-t border-gold/20 bg-gradient-to-r from-transparent via-gold/[0.06] to-transparent">
+        <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-5 py-6 md:flex-row md:px-10">
+          <div className="flex flex-col items-center gap-1 text-center md:items-start md:text-left">
+            <p className="text-[9px] uppercase tracking-[0.4em] text-ivory/40">
+              Designed &amp; Developed by
+            </p>
+            <p className="font-serif text-xl leading-none text-gold">
+              Vishishth Gaur
+              <span className="mx-2 italic text-ivory/35">·</span>
+              <span className="tracking-[0.25em]">KAATYA</span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] md:gap-5">
+            <a
+              href="https://www.instagram.com/_kaatya_og_"
+              target="_blank"
+              rel="noreferrer"
+              data-cursor="link"
+              className="group flex items-center gap-2 rounded-full border border-ivory/15 px-4 py-2 text-ivory/60 transition-all hover:border-gold/50 hover:text-gold"
+            >
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+              @_kaatya_og_
+            </a>
+            <a
+              href="mailto:vishishthgaurlittle@gmail.com"
+              data-cursor="link"
+              className="group flex items-center gap-2 rounded-full border border-ivory/15 px-4 py-2 text-ivory/60 transition-all hover:border-gold/50 hover:text-gold"
+            >
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 6-10 7L2 6" />
+              </svg>
+              <span className="hidden sm:inline">vishishthgaurlittle@gmail.com</span>
+              <span className="sm:hidden">Email</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>
