@@ -38,6 +38,8 @@ export default function ProductDetail({
   const cart = useCart();
   const router = useRouter();
   const [added, setAdded] = useState(false);
+  // simple (non-customizable) items like stickers: no frame options, plain image
+  const simple = options.length === 0;
   const name = product.name[lang] || product.name.en || product.slug;
   const desc = product.description?.[lang] || product.description?.en || "";
   const base = priceOf(product);
@@ -157,15 +159,22 @@ export default function ProductDetail({
           {/* visual */}
           <div className="pd-in lg:sticky lg:top-28 lg:self-start">
             <div className="mx-auto max-w-[520px]">
-              <FramedImage
-                src={img.src}
-                alt={img.alt || name}
-                tone={(product.frame_tone as "gold" | "wood" | "black") ?? "gold"}
-                strokes
-                parallax={false}
-                aspect="aspect-[4/5]"
-                sizes="(max-width:1024px) 92vw, 42vw"
-              />
+              {simple ? (
+                <div className="overflow-hidden rounded-2xl border border-gold/15 bg-ink-2 shadow-frame">
+                  {/* plain sticker visual — peel & stick items are not framed */}
+                  <img src={img.src} alt={img.alt || name} className="aspect-[4/5] w-full object-cover" />
+                </div>
+              ) : (
+                <FramedImage
+                  src={img.src}
+                  alt={img.alt || name}
+                  tone={(product.frame_tone as "gold" | "wood" | "black") ?? "gold"}
+                  strokes
+                  parallax={false}
+                  aspect="aspect-[4/5]"
+                  sizes="(max-width:1024px) 92vw, 42vw"
+                />
+              )}
             </div>
             <p className="mt-4 text-center text-[10px] uppercase tracking-[0.26em] text-ivory/30">
               {t.productPage.reviewsBadge}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getAllProductImages,
+  getCategories,
   getFrameOptions,
   getProductBySlug,
   getProducts,
@@ -24,13 +25,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const { slug } = await props.params;
-  const [product, allProducts, allImages, options] = await Promise.all([
+  const [product, allProducts, allImages, options, cats] = await Promise.all([
     getProductBySlug(slug),
     getProducts(),
     getAllProductImages(),
     getFrameOptions(),
+    getCategories(),
   ]);
   if (!product) notFound();
+
+  // stickers are peel-and-stick: no framing, no customization picks
+  const catSlug = cats.find((c) => c.id === product.category_id)?.slug ?? "";
+  const frameless = catSlug === "stickers";
 
   const related = allProducts
     .filter((p) => p.id !== product.id && p.category_id === product.category_id)
@@ -49,7 +55,7 @@ export default async function ProductPage(props: Props) {
     <ProductDetail
       product={product}
       images={allImages.filter((i) => i.product_id === product.id)}
-      options={options}
+      options={frameless ? [] : options}
       related={relatedFinal}
       relatedImages={relatedImages}
     />
