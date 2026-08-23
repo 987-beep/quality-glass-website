@@ -192,15 +192,40 @@ export function relayStorage(req: Request, parts: string[]) {
   const jwt = extractUserJwt(req);
   const url = new URL(req.url);
   const upstream = upstreamUrl(["storage", ...parts], url.search);
+  const bucketIdx = parts.indexOf("buckets");
+  const bucket = bucketIdx >= 0 ? parts[bucketIdx + 1] : undefined;
 
   // anonymous: only GETs of objects in public buckets
   if (!jwt) {
-    const bucketIdx = parts.indexOf("buckets");
-    const bucket = bucketIdx >= 0 ? parts[bucketIdx + 1] : undefined;
     if (req.method === "GET" && bucket && PUBLIC_BUCKETS.has(bucket)) {
       return relay(req, upstream, `Bearer ${INSFORGE_API_KEY}`);
     }
     return deny("Login required for this storage operation", 401);
+  }
+
+  // signed-in: WRITES to shop-owned buckets (products/content) are admin-only —
+  // a customer must never presign/upload/delete the public catalog buckets.
+  // payment-proofs uploads stay open (the customer proof flow): fraud can't
+  // touch catalog assets, and proofs are admin-reviewed anyway.
+  if (req.method !== "GET" && bucket && bucket !== "payment-proofs") {
+    return (async () => {
+      const me = await fetch(`${INSFORGE_URL}/api/auth/sessions/current`, {
+        headers: { apikey: INSFORGE_API_KEY, authorization: jwt }, cache: "no-store",
+      });
+      if (!me.ok) return deny("Invalid session", 401);
+      const meJ = await me.json().catch(() => null);
+      const uid: string | undefined = meJ?.user?.id;
+      if (!uid) return deny("Invalid session", 401);
+      const prof = await fetch(
+        `${INSFORGE_URL}/api/database/records/profiles?id=eq.${encodeURIComponent(uid)}&select=role`,
+        { headers: { apikey: INSFORGE_API_KEY, authorization: jwt }, cache: "no-store" }
+      );
+      if (!prof.ok) return deny("Cannot verify permissions", 403);
+      const rows = await prof.json().catch(() => []);
+      const role = Array.isArray(rows) && rows[0] ? (rows[0] as { role?: string }).role : undefined;
+      if (role !== "admin") return deny("Owner account required for this storage operation", 403);
+      return relay(req, upstream, jwt);
+    })();
   }
   return relay(req, upstream, jwt);
 }
