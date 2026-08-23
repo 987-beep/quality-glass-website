@@ -83,7 +83,7 @@ export default function SettingsAdmin() {
     try {
       if (file.size > 4 * 1024 * 1024) throw new Error("Max 4MB image.");
       const ext = (file.name.split(".").pop() || "png").toLowerCase();
-      const key = `upi/qr-${Date.now()}.${ext}`;
+      const key = `upi-qr-${Date.now()}.${ext}`;
       const up = await getInsforge().storage.from("content").upload(key, file);
       if (up.error) throw new Error(errMsg(up.error));
       setPay((p) => ({ ...p, upi_qr_url: publicStorageUrl("content", key) }));

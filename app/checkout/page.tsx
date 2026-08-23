@@ -203,7 +203,7 @@ function CheckoutInner() {
     setBusy(true);
     try {
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const key = `proofs/${order.id}-${Date.now()}.${ext}`;
+      const key = `proof-${order.id}-${Date.now()}.${ext}`;
       const up = await getInsforge().storage
         .from("payment-proofs")
         .upload(key, file);

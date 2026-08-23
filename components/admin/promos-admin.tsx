@@ -96,7 +96,7 @@ export default function PromosAdmin() {
     try {
       if (file.size > 6 * 1024 * 1024) throw new Error("Max 6MB image.");
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const key = `promos/banner-${Date.now()}.${ext}`;
+      const key = `promo-banner-${Date.now()}.${ext}`;
       const up = await getInsforge().storage.from("content").upload(key, file);
       if (up.error) throw new Error(errMsg(up.error));
       setEdit({ ...edit, image_url: publicStorageUrl("content", key) });

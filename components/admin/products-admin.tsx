@@ -146,7 +146,7 @@ export default function ProductsAdmin() {
     try {
       if (file.size > 6 * 1024 * 1024) throw new Error("Max 6MB per photo.");
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const key = `catalog/${edit.slug}-${Date.now()}.${ext}`;
+      const key = `catalog-${edit.slug}-${Date.now()}.${ext}`;
       const sdk = getInsforge();
       const up = await sdk.storage.from("products").upload(key, file);
       if (up.error) throw new Error(errMsg(up.error));
