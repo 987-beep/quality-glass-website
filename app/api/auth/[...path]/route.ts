@@ -1,0 +1,17 @@
+import { relayAuth } from "@/lib/server/insforge";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+type Ctx = { params: Promise<{ path: string[] }> };
+
+async function handle(req: Request, ctx: Ctx) {
+  const { path } = await ctx.params;
+  return relayAuth(req, path);
+}
+
+export const GET = handle;
+export const POST = handle;
+export const PATCH = handle;
+export const PUT = handle;
+export const DELETE = handle;

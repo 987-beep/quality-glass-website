@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mq-skew: 0deg;
+}
+
+html,
+body {
+  background: #0c0a06;
+  color: #f1ead9;
+  overflow-x: clip;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #c9a24b;
+  color: #0c0a06;
+}
+
+/* ---------- metallic frame mouldings ---------- */
+.gold-frame {
+  background: linear-gradient(
+    118deg,
+    #f0d189 0%,
+    #c09540 30%,
+    #8a6420 52%,
+    #e2c470 74%,
+    #f0d189 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 246, 218, 0.6),
+    inset 0 0 0 3px rgba(58, 40, 6, 0.4);
+}
+.wood-frame {
+  background: linear-gradient(
+    118deg,
+    #a06b3f 0%,
+    #6f4526 45%,
+    #4d2d12 75%,
+    #966138 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 236, 206, 0.28),
+    inset 0 0 0 3px rgba(30, 17, 6, 0.5);
+}
+.black-frame {
+  background: linear-gradient(
+    118deg,
+    #453f32 0%,
+    #1a1511 55%,
+    #4c4234 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(232, 207, 143, 0.4);
+}
+
+/* ---------- utilities ---------- */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.outline-word {
+  -webkit-text-stroke: 1px rgba(201, 162, 75, 0.18);
+  color: transparent;
+}
+
+.mq-skew {
+  transform: skewX(var(--mq-skew));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* film grain overlay */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 62;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.09'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* custom cursor active */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button,
+html.has-cursor [role="button"] {
+  cursor: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mq,
+  .animate-mq-slow,
+  .animate-pulseRing,
+  .animate-cue-line,
+  .animate-floaty {
+    animation: none !important;
+  }
+}
