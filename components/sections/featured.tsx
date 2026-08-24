@@ -6,17 +6,23 @@ import { useLanguage } from "@/components/providers/language-provider";
 import FramedImage, { type FrameTone } from "@/components/fx/framed-image";
 import RevealText from "@/components/fx/reveal-text";
 import { prefersReduced } from "@/lib/fx-helpers";
+import { formatINR } from "@/lib/format";
+import { priceOf, type Product, type ProductImage } from "@/lib/server/catalog";
+import { primaryImage } from "@/lib/product-media";
 
-// order matches t.featured.items
-const FEATURED_SLUGS = [
-  "royal-gold-frame",
-  "classic-teak-frame",
-  "canvas-photo-wrap",
-  "moderna-black-frame",
-];
-
-export default function Featured() {
-  const { t } = useLanguage();
+/**
+ * Featured frames — fully data-driven: every card is a real, purchasable
+ * product, so links always lead to a live product page. Shows at least 8
+ * products in a two-across grid (four rows on mobile/desktop alike).
+ */
+export default function Featured({
+  products = [],
+  images = [],
+}: {
+  products?: Product[];
+  images?: ProductImage[];
+}) {
+  const { t, lang } = useLanguage();
   const ref = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -41,7 +47,9 @@ export default function Featured() {
       });
     }, el);
     return () => ctx.revert();
-  }, [t]);
+  }, [t, products]);
+
+  if (products.length === 0) return null;
 
   return (
     <section id="featured" ref={ref} className="relative py-24 md:py-32">
@@ -62,37 +70,45 @@ export default function Featured() {
           </p>
         </div>
 
-        <div className="grid gap-x-6 gap-y-16 sm:grid-cols-2 lg:grid-cols-4">
-          {t.featured.items.map((p, i) => (
-            <a
-              key={p.name + i}
-              href={`/product/${FEATURED_SLUGS[i % FEATURED_SLUGS.length]}`}
-              className="fcard group"
-              data-cursor="view"
-              data-cursor-label="View"
-            >
-              <FramedImage
-                src={p.img}
-                alt={p.name}
-                tone={(p.tone as FrameTone) || "gold"}
-                aspect="aspect-[4/5]"
-                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 22vw"
-              />
-              <div className="mt-5 flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-serif text-xl text-ivory transition-colors group-hover:text-gold-light">
-                    {p.name}
-                  </h3>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-ivory/40">
-                    {t.featured.note}
-                  </p>
+        {/* 2 per line everywhere; 8 cards minimum (4 rows) */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14 md:gap-y-16">
+          {products.map((p) => {
+            const img = primaryImage(
+              p.slug,
+              images.filter((i) => i.product_id === p.id)
+            );
+            const name = p.name[lang] || p.name.en || p.slug;
+            return (
+              <a
+                key={p.id}
+                href={`/product/${p.slug}`}
+                className="fcard group"
+                data-cursor="view"
+                data-cursor-label="View"
+              >
+                <FramedImage
+                  src={img.src}
+                  alt={img.alt}
+                  tone={(p.frame_tone as FrameTone | undefined) || "gold"}
+                  aspect="aspect-[4/5]"
+                  sizes="(max-width: 640px) 46vw, (max-width: 1024px) 46vw, 46vw"
+                />
+                <div className="mt-4 flex items-start justify-between gap-2 sm:mt-5 sm:gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate font-serif text-base text-ivory transition-colors group-hover:text-gold-light sm:text-xl">
+                      {name}
+                    </h3>
+                    <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-ivory/40 sm:text-[10px]">
+                      {t.featured.note}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 font-serif text-sm text-gold-light sm:px-3 sm:py-1.5 sm:text-[15px]">
+                    {formatINR(priceOf(p))}
+                  </span>
                 </div>
-                <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 font-serif text-[15px] text-gold-light">
-                  {p.price}
-                </span>
-              </div>
-            </a>
-          ))}
+              </a>
+            );
+          })}
         </div>
 
         <div className="mt-16 text-center">

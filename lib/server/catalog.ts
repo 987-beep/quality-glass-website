@@ -76,6 +76,21 @@ export const getApprovedReviews = () =>
     "?is_approved=eq.true&select=id,author_name,area,rating,quote,photo_url&order=created_at.desc&limit=12"
   );
 
+export const getFeaturedProducts = async (limit = 8) => {
+  const select = "select=id,slug,name,description,base_price,category_id,frame_tone,is_featured";
+  const featured = await dbGet<Product>(
+    "products",
+    `?is_active=eq.true&is_featured=eq.true&${select}&order=created_at.asc&limit=${limit}`
+  );
+  if (featured.length >= limit) return featured;
+  const have = new Set(featured.map((p) => p.id));
+  const fill = await dbGet<Product>(
+    "products",
+    `?is_active=eq.true&is_featured=eq.false&${select}&order=created_at.desc&limit=${limit - featured.length}`
+  );
+  return [...featured, ...fill.filter((p) => !have.has(p.id))];
+};
+
 export const getCategories = () =>
   dbGet<Category>("categories", "?select=id,slug,name");
 

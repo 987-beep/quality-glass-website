@@ -6,17 +6,21 @@ import Featured from "@/components/sections/featured";
 import Stats from "@/components/sections/stats";
 import Testimonials from "@/components/sections/testimonials";
 import Cta from "@/components/sections/cta";
-import { getApprovedReviews } from "@/lib/server/catalog";
+import { getApprovedReviews, getFeaturedProducts, getAllProductImages } from "@/lib/server/catalog";
 
 export default async function Home() {
-  const reviews = await getApprovedReviews();
+  const [reviews, featured, allImages] = await Promise.all([
+    getApprovedReviews(),
+    getFeaturedProducts(8),
+    getAllProductImages(),
+  ]);
   return (
     <main id="top" className="relative">
       <Hero />
       <MarqueeStrip />
       <Categories />
       <HowItWorks />
-      <Featured />
+      <Featured products={featured} images={allImages} />
       <Stats />
       <Testimonials approved={reviews} />
       <Cta />
