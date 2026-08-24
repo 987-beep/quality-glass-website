@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced, isTouch } from "@/lib/fx-helpers";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -40,7 +41,61 @@ const FRAMES: HFrame[] = [
   },
 ];
 
-export default function Hero() {
+type WallImage = { src: string; alt: string };
+
+/**
+ * Featured-product photo wall that sits BEHIND the three tilted frames,
+ * where there used to be plain black. Slides a new photo in every 4s.
+ */
+function WallSlider({ images }: { images: WallImage[] }) {
+  const n = images.length;
+  const [cur, setCur] = useState(0);
+
+  useEffect(() => {
+    if (n < 2 || prefersReduced()) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") setCur((v) => (v + 1) % n);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [n]);
+
+  if (n === 0) return null;
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute -inset-x-4 -inset-y-6 z-0 overflow-hidden rounded-[2rem] border border-ivory/[0.07] bg-ink/40 sm:-inset-x-8 lg:-inset-10"
+    >
+      {images.map((img, i) => {
+        const active = i === cur;
+        const wasActive = i === (cur - 1 + n) % n;
+        return (
+          // local /product-pool images — plain img keeps the layer cheap
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={img.src + i}
+            src={img.src}
+            alt=""
+            loading={i === 0 ? "eager" : "lazy"}
+            className={`absolute inset-0 h-full w-full object-cover transition-all duration-[950ms] ease-out ${
+              active
+                ? "translate-x-0 opacity-[0.58] saturate-[1.05]"
+                : wasActive
+                  ? "-translate-x-10 opacity-0"
+                  : "translate-x-12 opacity-0"
+            }`}
+          />
+        );
+      })}
+      {/* studio-grade dimming so the frames on top stay the hero */}
+      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-ink/55" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-transparent to-transparent lg:from-transparent" />
+      <div className="absolute inset-0 ring-1 ring-inset ring-ivory/10" />
+    </div>
+  );
+}
+
+export default function Hero({ wallImages = [] }: { wallImages?: WallImage[] }) {
   const { t } = useLanguage();
 
   const ref = useGsap((el, q) => {
@@ -171,6 +226,8 @@ export default function Hero() {
 
         {/* gallery wall */}
         <div className="h-cluster relative flex items-end justify-center lg:h-[80vh] lg:max-h-[740px] lg:w-full">
+          {/* featured-product slide show behind the frames (was black) */}
+          {wallImages.length > 0 && <WallSlider images={wallImages} />}
           {FRAMES.map((f, i) => (
             <div key={f.src} className={`h-parallax relative ${f.cls}`} data-speed={f.speed}>
               <FramedImage
