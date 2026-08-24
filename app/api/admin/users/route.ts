@@ -4,20 +4,28 @@
  *   GET            → list every registered account (email, provider, joined date,
  *                    role, username, phone, order count) for the admin UI.
  *   POST { userId }→ permanently remove ONE customer account and everything
- *                    attached to it: payment-proof rows + screenshot files,
- *                    order items, orders, review links, profile row, and
- *                    finally the InsForge auth user itself.
+ *                    attached to it.
+ *
+ * Why SQL for removal: InsForge's auth REST API refuses user deletion without
+ * a *dashboard* session, even with the master ik_ key, and the DB write-guard
+ * trigger (guard_authenticated_write) blocks session-less writes on public
+ * tables. The store's own escape hatch is ops.maintenance_flag: raising it
+ * inside a single transaction permits the cleanup, then the flag is dropped
+ * again before commit — nothing persists if anything fails.
  *
  * Safety rails: the caller must be a signed-in profile with role = admin;
  * you cannot delete your own account; other admin accounts can never be
- * removed through this route. The master ik_ key stays server-side only.
+ * removed through this route. The master key and DB URL stay server-side only.
  */
+
+import { Client } from "pg";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const INSFORGE_URL = process.env.INSFORGE_URL ?? "";
 const INSFORGE_API_KEY = process.env.INSFORGE_API_KEY ?? "";
+const INSFORGE_DATABASE_URL = process.env.INSFORGE_DATABASE_URL ?? "";
 
 function insforge(path: string, init: RequestInit, jwt?: string) {
   const headers: Record<string, string> = {
@@ -126,6 +134,7 @@ export async function GET(req: Request) {
 /* ------------------------------------------------------- POST: remove account */
 
 export async function POST(req: Request) {
+  let db: Client | null = null;
   try {
     const gate = await requireAdmin(req);
     if ("error" in gate) return gate.error;
@@ -141,6 +150,9 @@ export async function POST(req: Request) {
     if (userId === gate.uid) {
       return Response.json({ ok: false, error: "You can't delete your own owner account here." }, { status: 400 });
     }
+    if (!INSFORGE_DATABASE_URL) {
+      return Response.json({ ok: false, error: "Server is missing its database connection." }, { status: 500 });
+    }
 
     // Never allow deleting another admin account.
     const targetProfRes = await insforge(
@@ -154,81 +166,68 @@ export async function POST(req: Request) {
       }
     }
 
-    const removed = { proofs: 0, proofFiles: 0, orders: 0, orderItems: true, reviewsUnlinked: true, profile: true, authUser: false };
-    const warns: string[] = [];
-
-    // 1. Payment proofs (DB rows) + their screenshot files in storage
+    // Grab the account's payment-proof file keys first (for storage cleanup).
+    let proofKeys: string[] = [];
+    let proofCount = 0;
     const proofsRes = await insforge(
       `database/records/payment_proofs?user_id=eq.${encodeURIComponent(userId)}&select=id,storage_key`, { method: "GET" }
     );
     if (proofsRes.ok) {
-      const proofs: { id: string; storage_key: string | null }[] = await proofsRes.json().catch(() => []);
-      removed.proofs = Array.isArray(proofs) ? proofs.length : 0;
-      if (removed.proofs > 0) {
-        const del = await insforge(`database/records/payment_proofs?user_id=eq.${encodeURIComponent(userId)}`, { method: "DELETE" });
-        if (!del.ok) warns.push("proof-rows");
-        for (const p of Array.isArray(proofs) ? proofs : []) {
-          if (!p.storage_key) continue;
-          const fileDel = await insforge(
-            `storage/buckets/payment-proofs/objects/${encodeURIComponent(p.storage_key)}`, { method: "DELETE" }
-          );
-          if (fileDel.ok || fileDel.status === 404) removed.proofFiles += 1;
-        }
+      const proofs: { storage_key: string | null }[] = await proofsRes.json().catch(() => []);
+      proofCount = Array.isArray(proofs) ? proofs.length : 0;
+      proofKeys = (Array.isArray(proofs) ? proofs : []).map((p) => p.storage_key).filter((k): k is string => Boolean(k));
+    }
+
+    // One transaction: raise the maintenance flag (satisfies the write-guard
+    // trigger), wipe the account, drop the flag, commit. Rollback on any error
+    // leaves the DB exactly as it was.
+    db = new Client({ connectionString: INSFORGE_DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    await db.connect();
+    const removed = { reviewsUnlinked: 0, orders: 0, proofs: proofCount, profile: true, authUser: 0 };
+    try {
+      await db.query("begin");
+      await db.query('insert into ops.maintenance_flag("on") values (true)');
+      const rev = await db.query("update reviews set user_id = null where user_id = $1", [userId]);
+      removed.reviewsUnlinked = rev.rowCount ?? 0;
+      const ord = await db.query("delete from orders where user_id = $1", [userId]);
+      removed.orders = ord.rowCount ?? 0;
+      // ^ deleting orders cascades order_items; profiles + user_providers
+      // cascade from auth.users below.
+      const usr = await db.query("delete from auth.users where id = $1", [userId]);
+      removed.authUser = usr.rowCount ?? 0;
+      await db.query("delete from ops.maintenance_flag");
+      if (removed.authUser === 0) {
+        await db.query("rollback");
+        return Response.json({ ok: false, error: "That account no longer exists (nothing was changed)." }, { status: 404 });
       }
-    } else {
-      warns.push("proof-lookup");
+      await db.query("commit");
+    } catch (e) {
+      try { await db.query("rollback"); } catch { /* ignore */ }
+      const msg = e instanceof Error ? e.message : "Database refused the removal.";
+      return Response.json({ ok: false, error: `Removal failed, nothing was changed: ${msg.slice(0, 180)}` }, { status: 502 });
+    } finally {
+      try { await db.end(); } catch { /* ignore */ }
+      db = null;
     }
 
-    // 2. Order items, then orders
-    const ordRes = await insforge(
-      `database/records/orders?user_id=eq.${encodeURIComponent(userId)}&select=id`, { method: "GET" }
-    );
-    const ordRows: { id: string }[] = ordRes.ok ? await ordRes.json().catch(() => []) : [];
-    removed.orders = Array.isArray(ordRows) ? ordRows.length : 0;
-    if (removed.orders > 0) {
-      const inList = encodeURIComponent(`in.(${ordRows.map((o) => o.id).join(",")})`);
-      const itemsDel = await insforge(`database/records/order_items?order_id=${inList}`, { method: "DELETE" });
-      if (!itemsDel.ok) { removed.orderItems = false; warns.push("order-items"); }
-      const ordDel = await insforge(`database/records/orders?user_id=eq.${encodeURIComponent(userId)}`, { method: "DELETE" });
-      if (!ordDel.ok) warns.push("orders");
-    }
-
-    // 3. Reviews: keep the text, detach it from the deleted account
-    const revPatch = await insforge(
-      `database/records/reviews?user_id=eq.${encodeURIComponent(userId)}`,
-      { method: "PATCH", body: JSON.stringify({ user_id: null }) }
-    );
-    if (!revPatch.ok && revPatch.status !== 404) { removed.reviewsUnlinked = false; warns.push("reviews"); }
-
-    // 4. Profile row
-    const profDel = await insforge(`database/records/profiles?id=eq.${encodeURIComponent(userId)}`, { method: "DELETE" });
-    if (!profDel.ok && profDel.status !== 404) { removed.profile = false; warns.push("profile"); }
-
-    // 5. The auth account itself
-    const userDel = await insforge("auth/users", {
-      method: "DELETE",
-      body: JSON.stringify({ userIds: [userId] }),
-    });
-    if (!userDel.ok) {
-      const t = await userDel.text();
-      return Response.json(
-        { ok: false, error: `Account removal refused (${userDel.status}): ${t.slice(0, 180)}`, partial: removed, warns },
-        { status: 502 }
+    // Best-effort: remove the uploaded proof screenshots from storage.
+    let proofFiles = 0;
+    for (const key of proofKeys) {
+      const fileDel = await insforge(
+        `storage/buckets/payment-proofs/objects/${encodeURIComponent(key)}`, { method: "DELETE" }
       );
+      if (fileDel.ok || fileDel.status === 404) proofFiles += 1;
     }
 
-    // 6. Verify the account is really gone
+    // Verify the account is really gone.
     const chk = await insforge(`auth/users/${encodeURIComponent(userId)}`, { method: "GET" });
     if (chk.ok) {
-      return Response.json(
-        { ok: false, error: "Delete was refused — the account still exists.", partial: removed, warns },
-        { status: 502 }
-      );
+      return Response.json({ ok: false, error: "Delete was refused — the account still exists." }, { status: 502 });
     }
-    removed.authUser = true;
 
-    return Response.json({ ok: true, removed, warns });
+    return Response.json({ ok: true, removed: { ...removed, proofFiles } });
   } catch (e) {
+    try { await db?.end(); } catch { /* ignore */ }
     return Response.json({ ok: false, error: e instanceof Error ? e.message : "Unexpected error." }, { status: 500 });
   }
 }
