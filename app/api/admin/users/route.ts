@@ -93,7 +93,7 @@ export async function GET(req: Request) {
 
     const [profRes, ordRes] = await Promise.all([
       insforge("database/records/profiles?select=id,role,username,phone,full_name", { method: "GET" }),
-      insforge("database/records/orders?select=id,user_id,status,total_amount,created_at", { method: "GET" }),
+      insforge("database/records/orders?select=id,user_id,status,total_amount,created_at,delivery_address", { method: "GET" }),
     ]);
     const profiles = profRes.ok ? await profRes.json().catch(() => []) : [];
     const orders = ordRes.ok ? await ordRes.json().catch(() => []) : [];
@@ -102,12 +102,20 @@ export async function GET(req: Request) {
       (Array.isArray(profiles) ? (profiles as ProfileLite[]) : []).map((p) => [p.id, p])
     );
     const orderStats = new Map<string, { count: number; last: string }>();
-    (Array.isArray(orders) ? orders : []).forEach((o: { user_id: string; created_at: string }) => {
-      const cur = orderStats.get(o.user_id) ?? { count: 0, last: "" };
-      cur.count += 1;
-      if (o.created_at > cur.last) cur.last = o.created_at;
-      orderStats.set(o.user_id, cur);
-    });
+    const lastPhone = new Map<string, { at: string; phone: string }>();
+    (Array.isArray(orders) ? orders : []).forEach(
+      (o: { user_id: string; created_at: string; delivery_address?: { phone?: string } | null }) => {
+        const cur = orderStats.get(o.user_id) ?? { count: 0, last: "" };
+        cur.count += 1;
+        if (o.created_at > cur.last) cur.last = o.created_at;
+        orderStats.set(o.user_id, cur);
+        const ph = o.delivery_address?.phone;
+        const seen = lastPhone.get(o.user_id);
+        if (ph && (!seen || o.created_at > seen.at)) {
+          lastPhone.set(o.user_id, { at: o.created_at, phone: ph });
+        }
+      }
+    );
 
     const out = users.map((u) => ({
       id: u.id,
@@ -118,7 +126,7 @@ export async function GET(req: Request) {
       avatar: u.profile?.avatar_url || "",
       role: profMap.get(u.id)?.role ?? "customer",
       username: profMap.get(u.id)?.username ?? null,
-      phone: profMap.get(u.id)?.phone ?? null,
+      phone: profMap.get(u.id)?.phone ?? lastPhone.get(u.id)?.phone ?? null,
       joined: u.createdAt ?? "",
       orderCount: orderStats.get(u.id)?.count ?? 0,
       lastOrderAt: orderStats.get(u.id)?.last || null,

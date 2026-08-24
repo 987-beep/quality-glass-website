@@ -295,6 +295,13 @@ function CheckoutInner() {
             >
               {t.checkout.backShop}
             </Link>
+            <Link
+              href="/track"
+              data-cursor="link"
+              className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-ivory/45 underline-offset-4 transition-colors hover:text-gold-light hover:underline"
+            >
+              Save your order number — track it anytime at /track 🔍
+            </Link>
           </div>
         </div>
       </main>

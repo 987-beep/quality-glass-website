@@ -7,6 +7,7 @@ import {
   Order, OrderItem, PaymentProof, ProfileRow,
   ORDER_STATUS, NEXT_ACTIONS, inr, dt, biText,
 } from "@/lib/admin-shared";
+import { waLink, orderStatusMessage } from "@/lib/whatsapp";
 
 const FILTERS = [
   { id: "action", label: "Needs action", match: (s: string) => s === "payment_verifying" },
@@ -237,6 +238,28 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
                           {o.delivery_method === "local_delivery" ? "Raebareli local delivery" : "Shop pickup"}
                           {o.delivery_address?.line ? ` — ${o.delivery_address.line}` : ""}
                         </p>
+                        {(() => {
+                          const phone = o.delivery_address?.phone || p?.phone || null;
+                          const link = waLink(phone, orderStatusMessage(o));
+                          return link ? (
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noreferrer"
+                              data-cursor="link"
+                              className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#25D366]/15 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#25D366] transition-colors hover:bg-[#25D366]/25"
+                            >
+                              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor">
+                                <path d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07a8.2 8.2 0 0 1-2.4-1.48 9 9 0 0 1-1.66-2.06c-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.58-.09 1.76-.72 2-1.42.25-.7.25-1.3.18-1.42-.08-.13-.28-.2-.58-.35M12.05 21.8h-.01a9.8 9.8 0 0 1-5-1.37l-.36-.21-3.72.97.99-3.62-.23-.37a9.77 9.77 0 0 1-1.5-5.22c0-5.4 4.4-9.8 9.83-9.8a9.76 9.76 0 0 1 6.94 2.88 9.76 9.76 0 0 1 2.87 6.95c0 5.4-4.4 9.79-9.81 9.79m8.35-18.15A11.76 11.76 0 0 0 12.04 0C5.5 0 .19 5.3.19 11.85c0 2.09.54 4.13 1.58 5.93L.09 24l6.35-1.66a11.8 11.8 0 0 0 5.6 1.43h.01c6.55 0 11.86-5.3 11.86-11.85 0-3.17-1.24-6.15-3.5-8.27" />
+                              </svg>
+                              WhatsApp — {ORDER_STATUS[o.status]?.en || o.status}
+                            </a>
+                          ) : (
+                            <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-ivory/35">
+                              No phone on file for WhatsApp
+                            </p>
+                          );
+                        })()}
                         {o.customer_note && <p className="mt-2 rounded-lg bg-white/[0.04] p-3 text-xs text-ivory/60">“{o.customer_note}”</p>}
 
                         <label className="mt-5 block">
@@ -318,6 +341,15 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
                       {actions.length === 0 && (
                         <span className="text-[11px] uppercase tracking-[0.14em] text-ivory/35">No further actions</span>
                       )}
+                      <a
+                        href={`/admin/invoice/${o.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        data-cursor="link"
+                        className="ml-auto rounded-full border border-ivory/20 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ivory/70 transition-colors hover:border-gold/50 hover:text-gold-light"
+                      >
+                        🧾 Print bill
+                      </a>
                       {latestProof && o.status === "payment_verifying" && (
                         <span className="ml-auto self-center text-[10px] text-ivory/40">
                           Review the screenshot, then approve or reject.
