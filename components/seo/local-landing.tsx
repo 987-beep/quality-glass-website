@@ -98,6 +98,9 @@ export default function LocalLanding({
             <Link href="/track" className="text-gold-light underline-offset-4 hover:underline">
               🔍 Track an order
             </Link>
+            <Link href="/bulk" className="text-gold-light underline-offset-4 hover:underline">
+              📦 Bulk / event enquiry
+            </Link>
           </div>
         </div>
 

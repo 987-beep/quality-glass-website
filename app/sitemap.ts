@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/shop`, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/track`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/bulk`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/photo-framing-raebareli`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/custom-frames-raebareli`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/glass-mirror-work-raebareli`, changeFrequency: "monthly", priority: 0.8 },

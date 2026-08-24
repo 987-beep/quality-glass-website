@@ -95,6 +95,22 @@ export default function ShopClient({
           {t.shopPage.close}
         </p>
 
+        {/* bulk / event strip */}
+        <a
+          href="/bulk"
+          data-cursor="link"
+          className="sh-in mt-7 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gold/30 bg-gold/[0.06] px-5 py-4 transition-colors hover:border-gold/60 hover:bg-gold/[0.1] md:max-w-xl"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">📦</span>
+            <div>
+              <p className="text-sm font-semibold text-gold-light">Wedding, school function, award ceremony?</p>
+              <p className="mt-0.5 text-[11px] text-ivory/50">Bulk / event orders get special pricing — enquiry in 1 minute →</p>
+            </div>
+          </div>
+          <span className="text-gold-light">→</span>
+        </a>
+
         {/* filters */}
         <div className="sh-in mt-10 flex flex-wrap items-center gap-2.5 md:mt-12">
           {[{ slug: "all", name: { en: t.shopPage.all } as Category["name"] }, ...categories].map(
