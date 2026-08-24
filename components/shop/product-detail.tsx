@@ -99,9 +99,9 @@ export default function ProductDetail({
       .filter(Boolean)
       .join(", ");
     return encodeURIComponent(
-      `Hi Quality Glass! I'd like to order:\n• ${product.name.en} × ${qty}\n• Options: ${opts}\n• Total: ${formatINR(total)}\n(Please confirm availability — from the website)`
+      `Hi Quality Glass! I'd like to order:\n• ${product.name.en} × ${qty}\n• Options: ${opts || "default"}\n• Total: ${formatINR(total)}\n• Link: https://quality-glass-website.vercel.app/shop/${product.slug}\n(Please confirm availability — from the website)`
     );
-  }, [selected, qty, total, groups, product.name.en]);
+  }, [selected, qty, total, groups, product.name.en, product.slug]);
 
   const kindTitle = (kind: string) =>
     (t.productPage as Record<string, string>)[kind] ?? kind;

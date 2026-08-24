@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth, errMsg, normalizeUsername } from "@/components/providers/auth-provider";
@@ -48,6 +48,9 @@ export default function AuthShell({ mode }: { mode: Mode }) {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
+  // bot shield: honeypot input + form-load timestamp (checked server-side on signup)
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const startedAt = useRef<number>(Date.now());
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -116,6 +119,10 @@ export default function AuthShell({ mode }: { mode: Mode }) {
           email: email.trim() || undefined,
           password,
           name: name.trim(),
+          extras: {
+            website: (formRef.current?.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "",
+            _t: startedAt.current,
+          },
         });
         if (res.needsVerification) {
           setNotice(
@@ -196,7 +203,16 @@ export default function AuthShell({ mode }: { mode: Mode }) {
             </div>
           )}
 
-          <form onSubmit={submit} className="mt-8 space-y-4">
+          <form onSubmit={submit} ref={formRef} className="mt-8 space-y-4">
+            {/* honeypot — invisible to humans, irresistible to bots */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-[9999px] h-0 w-0 opacity-0"
+            />
             {mode === "signup" && (
               <div className="au-in">
                 <label htmlFor="name" className={label}>

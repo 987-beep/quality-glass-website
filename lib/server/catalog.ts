@@ -61,6 +61,21 @@ async function dbGet<T>(table: string, query = ""): Promise<T[]> {
   }
 }
 
+export type ApprovedReview = {
+  id: string;
+  author_name: string;
+  area: string | null;
+  rating: number;
+  quote: Localized;
+  photo_url: string | null;
+};
+
+export const getApprovedReviews = () =>
+  dbGet<ApprovedReview>(
+    "reviews",
+    "?is_approved=eq.true&select=id,author_name,area,rating,quote,photo_url&order=created_at.desc&limit=12"
+  );
+
 export const getCategories = () =>
   dbGet<Category>("categories", "?select=id,slug,name");
 

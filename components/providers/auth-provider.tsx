@@ -68,6 +68,8 @@ type AuthCtxValue = {
     email?: string;
     password: string;
     name: string;
+    /** bot-shield fields (honeypot + form-start timestamp) forwarded to the relay */
+    extras?: { website?: string; _t?: number };
   }) => Promise<{ needsVerification: boolean }>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -181,11 +183,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       name,
+      extras,
     }: {
       username: string;
       email?: string;
       password: string;
       name: string;
+      /** bot-shield fields (honeypot + form-start timestamp) forwarded to the relay */
+      extras?: { website?: string; _t?: number };
     }) => {
       const uname = normalizeUsername(username);
       if (!uname || uname.length < 3) throw new Error("Username must be at least 3 characters.");
@@ -198,7 +203,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: authEmail,
         password,
         name,
-      });
+        ...(extras ?? {}),
+      } as never);
       if (error) throw new Error(errMsg(error));
 
       const d = data as

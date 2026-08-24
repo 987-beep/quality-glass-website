@@ -78,7 +78,8 @@ function extractUserJwt(req: Request): string | null {
 async function relay(
   req: Request,
   upstream: string,
-  authorization: string | null
+  authorization: string | null,
+  bodyOverride?: Buffer
 ): Promise<Response> {
   const headers = new Headers();
   headers.set("apikey", INSFORGE_API_KEY);
@@ -95,7 +96,9 @@ async function relay(
   }
 
   const hasBody = !["GET", "HEAD"].includes(req.method);
-  const body = hasBody ? Buffer.from(await req.arrayBuffer()) : undefined;
+  const raw = bodyOverride ?? (hasBody ? Buffer.from(await req.arrayBuffer()) : undefined);
+  // DOM fetch types reject Node Buffer — pass a Uint8Array body instead
+  const body = raw === undefined ? undefined : new Uint8Array(raw);
 
   const res = await fetch(upstream, {
     method: req.method,
@@ -135,16 +138,55 @@ async function relay(
 const deny = (msg: string, status = 403) =>
   Response.json({ error: "BLOCKED_BY_PROXY", message: msg }, { status });
 
+/* ---------- bot shield (honeypot + fill-time) ---------- */
+
+const BOT_MIN_FILL_MS = 3000;
+
+/**
+ * Human gate for public write forms (signup, tracking, reviews…).
+ * Real users never see the hidden "website" field (bots fill anything they
+ * find), and nobody legitimately completes a form in under 3 seconds.
+ * Returns a blocking Response on suspicion, otherwise the request body with
+ * our scanner fields stripped out, ready to forward.
+ */
+export async function humanGate(req: Request, fields = ["website", "_t"]): Promise<Buffer | Response> {
+  try {
+    const raw = await req.json();
+    const hp = raw?.website;
+    const t = Number(raw?._t);
+    const now = Date.now();
+    const trapTriggered = hp !== undefined && hp !== null && String(hp).trim() !== "";
+    const tooFast = !Number.isFinite(t) || now - t < BOT_MIN_FILL_MS || now - t > 86_400_000;
+    if (trapTriggered || tooFast) {
+      return Response.json(
+        { error: "BOT_CHECK", message: "Please take a moment to fill the form, then try again.", statusCode: 400 },
+        { status: 400 }
+      );
+    }
+    fields.forEach((f) => delete raw[f]);
+    return Buffer.from(JSON.stringify(raw));
+  } catch {
+    return Response.json({ error: "BOT_CHECK", message: "Please try again.", statusCode: 400 }, { status: 400 });
+  }
+}
+
 /* ---------- per-surface handlers ---------- */
 
-export function relayAuth(req: Request, parts: string[]) {
+export async function relayAuth(req: Request, parts: string[]) {
   const path = parts.join("/");
   const hit = ALLOWED_AUTH.some(
     ([m, p]) => req.method === m && (path === p || path.startsWith(p + "/"))
   );
   if (!hit) return deny(`Auth endpoint not allowed: ${req.method} ${path}`);
   const url = new URL(req.url);
-  return relay(req, upstreamUrl(["auth", ...parts], url.search), extractUserJwt(req));
+  const upstream = upstreamUrl(["auth", ...parts], url.search);
+  if (req.method === "POST" && path === "users") {
+    // signup: bots must not create accounts (trolls/botnets). Honeypot + fill-time.
+    const gated = await humanGate(req);
+    if (gated instanceof Response) return gated;
+    return relay(req, upstream, extractUserJwt(req), gated);
+  }
+  return relay(req, upstream, extractUserJwt(req));
 }
 
 /**

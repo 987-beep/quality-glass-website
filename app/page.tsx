@@ -6,8 +6,10 @@ import Featured from "@/components/sections/featured";
 import Stats from "@/components/sections/stats";
 import Testimonials from "@/components/sections/testimonials";
 import Cta from "@/components/sections/cta";
+import { getApprovedReviews } from "@/lib/server/catalog";
 
-export default function Home() {
+export default async function Home() {
+  const reviews = await getApprovedReviews();
   return (
     <main id="top" className="relative">
       <Hero />
@@ -16,7 +18,7 @@ export default function Home() {
       <HowItWorks />
       <Featured />
       <Stats />
-      <Testimonials />
+      <Testimonials approved={reviews} />
       <Cta />
     </main>
   );

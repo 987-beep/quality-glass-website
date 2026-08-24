@@ -75,11 +75,21 @@ export default function ReviewsAdmin() {
         )}
         {sorted.map((r) => (
           <div key={r.id} className={`flex flex-wrap items-start gap-4 rounded-2xl border p-4 md:p-5 ${r.is_approved ? "border-ivory/10 bg-white/[0.03]" : "border-gold/40 bg-gold/[0.06]"}`}>
+            {r.photo_url && (
+              <a href={r.photo_url} target="_blank" rel="noreferrer" className="shrink-0">
+                {/* customer photo — served same-origin via storage proxy */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={r.photo_url} alt="customer frame" className="h-20 w-20 rounded-xl border border-ivory/15 object-cover" loading="lazy" />
+              </a>
+            )}
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm font-semibold text-ivory">{r.author_name}</span>
                 <Stars n={r.rating} />
                 <span className="text-[10px] text-ivory/40">{r.area ? `${r.area} · ` : ""}{dt(r.created_at)}</span>
+                {r.order_no && (
+                  <span className="rounded-full bg-ivory/10 px-2 py-0.5 text-[9px] font-semibold text-ivory/50">{r.order_no}</span>
+                )}
                 {!r.is_approved && (
                   <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-gold-light">pending approval</span>
                 )}

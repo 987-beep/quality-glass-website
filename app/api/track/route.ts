@@ -11,6 +11,8 @@
  *  - 10 lookups/min per IP (brute-force guard), on top of the global limiter.
  */
 
+import { humanGate } from "@/lib/server/insforge";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -49,7 +51,16 @@ export async function POST(req: Request) {
       return Response.json({ ok: false, error: "Too many lookups — wait a minute and try again." }, { status: 429 });
     }
 
-    const body = await req.json().catch(() => ({}));
+    // bot shield: honeypot + fill-time (same gate as signup)
+    const gated = await humanGate(req);
+    let body: Record<string, unknown>;
+    if (gated instanceof Response) {
+      const t = await gated.text().catch(() => "");
+      let msg = "Please take a moment and try again.";
+      try { msg = JSON.parse(t).message || msg; } catch { /* keep default */ }
+      return Response.json({ ok: false, error: msg }, { status: 400 });
+    }
+    body = JSON.parse(gated.toString("utf8") || "{}");
     const orderNo = String(body?.orderNo ?? "").trim().toUpperCase();
     const phoneDigits = last10(String(body?.phone ?? ""));
     if (!/^QG-[A-Z0-9]{5,12}$/.test(orderNo)) {

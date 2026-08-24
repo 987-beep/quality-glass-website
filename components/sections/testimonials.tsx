@@ -7,8 +7,14 @@ import RevealText from "@/components/fx/reveal-text";
 import { SHOP } from "@/lib/site-config";
 import { prefersReduced } from "@/lib/fx-helpers";
 
-export default function Testimonials() {
-  const { t } = useLanguage();
+import type { ApprovedReview } from "@/lib/server/catalog";
+
+type RealCard = { kind: "real"; key: string; name: string; area: string | null; rating: number; quote: string; photo: string | null };
+type SeedCard = { kind: "seed"; name: string; quote: string; area: string; initials: string };
+type Card = RealCard | SeedCard;
+
+export default function Testimonials({ approved = [] }: { approved?: ApprovedReview[] }) {
+  const { t, lang } = useLanguage();
   const ref = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +41,20 @@ export default function Testimonials() {
     }, el);
     return () => ctx.revert();
   }, [t]);
+
+  // real customer reviews first (owner-approved via /track), curated ones after
+  const cards: Card[] = [
+    ...approved.map((r): RealCard => ({
+      kind: "real",
+      key: r.id,
+      name: r.author_name,
+      area: r.area,
+      rating: r.rating,
+      quote: (r.quote?.[lang] || r.quote?.en || "") as string,
+      photo: r.photo_url,
+    })),
+    ...t.testimonials.items.map((r): SeedCard => ({ ...r, kind: "seed" })),
+  ];
 
   const scrollBy = (dir: number) => {
     const s = scrollerRef.current;
@@ -74,31 +94,46 @@ export default function Testimonials() {
           data-cursor-label="Drag"
           className="scrollbar-hide -mx-5 mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 md:-mx-10 md:px-10"
         >
-          {t.testimonials.items.map((r, i) => (
+          {cards.map((r, i) => (
             <figure
-              key={r.name + i}
-              className="tc relative w-[84vw] max-w-[340px] shrink-0 snap-start border border-gold/15 bg-white/[0.04] p-6 shadow-card backdrop-blur-sm sm:w-[380px] sm:max-w-none md:p-7"
+              key={(r.kind === "real" ? r.key : r.name) + i}
+              className="tc relative w-[84vw] max-w-[340px] shrink-0 snap-start overflow-hidden border border-gold/15 bg-white/[0.04] shadow-card backdrop-blur-sm sm:w-[380px] sm:max-w-none"
             >
-              <span aria-hidden className="absolute -top-1 right-5 select-none font-serif text-7xl text-gold/20">
-                ”
-              </span>
-              <div aria-hidden className="flex gap-1 text-sm tracking-[0.2em] text-gold">
-                ★★★★★
-              </div>
-              <blockquote className="mt-4 font-serif text-[17px] leading-7 text-ivory/85 md:text-lg md:leading-8">
-                “{r.quote}”
-              </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3">
-                <span className="gold-frame flex h-11 w-11 items-center justify-center rounded-full p-[3px]">
-                  <span className="flex h-full w-full items-center justify-center rounded-full bg-ink font-sans text-[11px] font-bold tracking-wide text-gold-light">
-                    {r.initials}
+              {r.kind === "real" && r.photo && (
+                // photos are served same-origin through our storage proxy
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={r.photo} alt={`${r.name}'s frame`} className="h-44 w-full object-cover sm:h-52" loading="lazy" />
+              )}
+              <div className="relative p-6 md:p-7">
+                <span aria-hidden className="absolute -top-1 right-5 select-none font-serif text-7xl text-gold/20">
+                  ”
+                </span>
+                <div aria-hidden className="flex gap-1 text-sm tracking-[0.2em] text-gold">
+                  {"★".repeat(Math.max(1, Math.min(5, r.kind === "real" ? r.rating : 5)))}
+                  <span className="text-gold/25">{"★".repeat(Math.max(0, 5 - Math.max(1, Math.min(5, r.kind === "real" ? r.rating : 5))))}</span>
+                </div>
+                <blockquote className="mt-4 font-serif text-[17px] leading-7 text-ivory/85 md:text-lg md:leading-8">
+                  “{r.quote}”
+                </blockquote>
+                <figcaption className="mt-6 flex items-center gap-3">
+                  <span className="gold-frame flex h-11 w-11 items-center justify-center rounded-full p-[3px]">
+                    <span className="flex h-full w-full items-center justify-center rounded-full bg-ink font-sans text-[11px] font-bold tracking-wide text-gold-light">
+                      {r.kind === "seed"
+                        ? r.initials
+                        : r.name.trim().split(/\s+/).map((w) => w[0] ?? "").slice(0, 2).join("").toUpperCase()}
+                    </span>
                   </span>
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-ivory">{r.name}</span>
-                  <span className="block text-xs text-ivory/45">{r.area}</span>
-                </span>
-              </figcaption>
+                  <span>
+                    <span className="block text-sm font-semibold text-ivory">{r.name}</span>
+                    <span className="block text-xs text-ivory/45">
+                      {r.area ?? ""}
+                      {r.kind === "real" && (
+                        <span className="ml-1.5 text-[10px] uppercase tracking-[0.08em] text-leaf">✓ {lang === "hi" ? "सत्यापित ग्राहक" : "verified buyer"}</span>
+                      )}
+                    </span>
+                  </span>
+                </figcaption>
+              </div>
             </figure>
           ))}
         </div>

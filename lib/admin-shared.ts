@@ -99,6 +99,9 @@ export type Review = {
   quote: BiName | string;
   is_approved: boolean;
   created_at: string;
+  photo_url?: string | null;
+  photo_key?: string | null;
+  order_no?: string | null;
 };
 
 /* ---------- status helpers ---------- */
