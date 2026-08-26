@@ -21,7 +21,7 @@ export default async function Home() {
   );
   return (
     <main id="top" className="relative">
-      <Hero wallImages={heroImages} products={featured} images={allImages} />
+      <Hero wallImages={heroImages} />
       <MarqueeStrip />
       <Categories />
       <HowItWorks />

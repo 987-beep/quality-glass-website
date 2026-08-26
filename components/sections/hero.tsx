@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced, isTouch } from "@/lib/fx-helpers";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -9,104 +8,6 @@ import FramedImage, { type FrameTone } from "@/components/fx/framed-image";
 import RevealText from "@/components/fx/reveal-text";
 import Magnetic from "@/components/fx/magnetic";
 import { SHOP } from "@/lib/site-config";
-import type { Product, ProductImage } from "@/lib/server/catalog";
-import { primaryImage } from "@/lib/product-media";
-
-/** Stepped auto-slider of featured product photos (advances every 4s, seamless loop). */
-const SPOT_W = 96; // thumb width px
-const SPOT_GAP = 12;
-
-function HeroSpotlight({ items, kicker }: { items: { slug: string; name: string; src: string }[]; kicker: string }) {
-  const [idx, setIdx] = useState(0);
-  const [noAnim, setNoAnim] = useState(false);
-  const paused = useRef(false);
-  const total = items.length;
-
-  useEffect(() => {
-    if (total < 2 || prefersReduced()) return;
-    const id = setInterval(() => {
-      if (!paused.current) setIdx((i) => i + 1);
-    }, 4000);
-    return () => clearInterval(id);
-  }, [total]);
-
-  // slide onto the duplicated head, then silently snap back for an infinite loop
-  useEffect(() => {
-    if (idx !== total) return;
-    const t = setTimeout(() => {
-      setNoAnim(true);
-      setIdx(0);
-      requestAnimationFrame(() => requestAnimationFrame(() => setNoAnim(false)));
-    }, 780); // matches the 700ms transition + buffer
-    return () => clearTimeout(t);
-  }, [idx, total]);
-
-  if (total < 2) return null;
-  const slides = [...items, ...items.slice(0, Math.min(5, total))];
-  const step = SPOT_W + SPOT_GAP;
-
-  return (
-    <div
-      className="h-strip w-full"
-      onPointerEnter={() => (paused.current = true)}
-      onPointerLeave={() => (paused.current = false)}
-    >
-      <p className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.28em] text-gold/90 sm:text-[10px]">
-        <span className="h-1 w-1 rotate-45 bg-gold" />
-        {kicker}
-      </p>
-      <div
-        className="w-full overflow-hidden"
-        style={{ maskImage: "linear-gradient(to right, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)" }}
-      >
-        <div
-          className="flex"
-          style={{
-            gap: SPOT_GAP,
-            transform: `translateX(${-idx * step}px)`,
-            transition: noAnim ? "none" : "transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1)",
-          }}
-        >
-          {slides.map((s, i) => (
-            <a
-              key={`${s.slug}-${i}`}
-              href={`/product/${s.slug}`}
-              title={s.name}
-              aria-label={s.name}
-              data-cursor="view"
-              className="group relative shrink-0 overflow-hidden rounded-xl border border-gold/25 transition-all duration-300 hover:border-gold-light/60 hover:shadow-[0_8px_28px_-8px_rgba(212,175,55,0.45)]"
-              style={{ width: SPOT_W, height: SPOT_W }}
-            >
-              <Image
-                src={s.src}
-                alt={s.name}
-                width={SPOT_W * 2}
-                height={SPOT_W * 2}
-                sizes={`${SPOT_W}px`}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                <span className="block truncate text-[9px] font-medium text-ivory">{s.name}</span>
-              </span>
-            </a>
-          ))}
-        </div>
-      </div>
-      {/* dots */}
-      <div className="mt-3 flex gap-1.5">
-        {items.map((s, i) => (
-          <button
-            key={s.slug}
-            type="button"
-            aria-label={`Show ${s.name}`}
-            onClick={() => setIdx(i)}
-            className={`h-1 rounded-full transition-all duration-300 ${idx % total === i ? "w-5 bg-gold" : "w-1.5 bg-ivory/20 hover:bg-ivory/40"}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 type HFrame = {
   src: string;
@@ -194,16 +95,8 @@ function WallSlider({ images }: { images: WallImage[] }) {
   );
 }
 
-export default function Hero({
-  wallImages = [],
-  products = [],
-  images = [],
-}: {
-  wallImages?: WallImage[];
-  products?: Product[];
-  images?: ProductImage[];
-}) {
-  const { t, lang } = useLanguage();
+export default function Hero({ wallImages = [] }: { wallImages?: WallImage[] }) {
+  const { t } = useLanguage();
 
   const ref = useGsap((el, q) => {
     if (prefersReduced()) return;
@@ -213,15 +106,14 @@ export default function Hero({
       opacity: 0,
       rotate: (i: number) => (i === 0 ? -1.5 : i === 1 ? -7 : 5.5),
     });
-    gsap.set(q(".h-badge,.h-sub,.h-ctas,.h-note,.h-strip"), { y: 24, opacity: 0 });
+    gsap.set(q(".h-badge,.h-sub,.h-ctas,.h-note"), { y: 24, opacity: 0 });
 
     const tl = gsap.timeline({ delay: 2.35, defaults: { ease: "power4.out" } });
     tl.to(q(".h-badge"), { y: 0, opacity: 1, duration: 0.7 }, 0)
       .to(q(".h-frame"), { y: 0, opacity: 1, duration: 1.2, stagger: 0.14, ease: "power3.out" }, 0.15)
       .to(q(".h-sub"), { y: 0, opacity: 1, duration: 0.8 }, 0.55)
       .to(q(".h-ctas"), { y: 0, opacity: 1, duration: 0.8 }, 0.75)
-      .to(q(".h-note"), { y: 0, opacity: 1, duration: 0.8 }, 0.9)
-      .to(q(".h-strip"), { y: 0, opacity: 1, duration: 0.8 }, 1.0);
+      .to(q(".h-note"), { y: 0, opacity: 1, duration: 0.8 }, 0.9);
 
     // scroll parallax — frames drift at different depths
     q(".h-parallax").forEach((node) => {
@@ -250,12 +142,6 @@ export default function Hero({
       }
     }
   }, [t]);
-
-  // featured product photos for the tap-through strip under the hero frames
-  const spotItems = products.slice(0, 10).map((p) => {
-    const img = primaryImage(p.slug, images.filter((i) => i.product_id === p.id));
-    return { slug: p.slug, name: p.name[lang] || p.name.en || p.slug, src: img.src };
-  });
 
   const scrollToShop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -338,11 +224,10 @@ export default function Hero({
           </p>
         </div>
 
-        {/* gallery wall (ambient product slideshow behind frames) + tappable featured strip under them */}
-        <div className="lg:flex lg:h-[86vh] lg:max-h-[820px] lg:w-full lg:flex-col">
-          <div className="h-cluster relative flex items-end justify-center lg:w-full lg:flex-1">
-            {/* featured-product slide show behind the frames (was black) */}
-            {wallImages.length > 0 && <WallSlider images={wallImages} />}
+        {/* gallery wall */}
+        <div className="h-cluster relative flex items-end justify-center lg:h-[80vh] lg:max-h-[740px] lg:w-full">
+          {/* featured-product slide show behind the frames (was black) */}
+          {wallImages.length > 0 && <WallSlider images={wallImages} />}
           {FRAMES.map((f, i) => (
             <div key={f.src} className={`h-parallax relative ${f.cls}`} data-speed={f.speed}>
               <FramedImage
@@ -357,12 +242,6 @@ export default function Hero({
               />
             </div>
           ))}
-          </div>
-          {spotItems.length > 1 && (
-            <div className="mt-12 lg:mt-0 lg:pb-2 lg:pt-8">
-              <HeroSpotlight items={spotItems} kicker={t.featured.kicker} />
-            </div>
-          )}
         </div>
       </div>
 
