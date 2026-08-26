@@ -52,8 +52,8 @@ export default function AdminUsersPage() {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const token = () =>
-    (getInsforge().auth as unknown as { getAccessToken?: () => string | null }).getAccessToken?.() ?? "";
+  const token = async () =>
+    (await getInsforge().getHttpClient().getValidAccessToken()) ?? "";
 
   const toastMsg = (m: string) => {
     setToast(m);
@@ -67,7 +67,7 @@ export default function AdminUsersPage() {
   const load = useCallback(async () => {
     setErr("");
     const res = await fetch("/api/admin/users", {
-      headers: { authorization: `Bearer ${token()}` },
+      headers: { authorization: `Bearer ${await token()}` },
       cache: "no-store",
     });
     const out = await res.json().catch(() => ({} as { ok?: boolean; error?: string; users?: Customer[] }));
@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json", authorization: `Bearer ${token()}` },
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${await token()}` },
         body: JSON.stringify({ userId: u.id }),
       });
       const out = await res.json().catch(() => ({} as { ok?: boolean; error?: string; removed?: RemoveSummary }));

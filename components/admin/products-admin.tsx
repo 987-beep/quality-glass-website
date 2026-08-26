@@ -128,7 +128,7 @@ export default function ProductsAdmin() {
     setBusy(true); setErr("");
     try {
       const sdk = getInsforge();
-      const token = (sdk.auth as unknown as { getAccessToken?: () => string | null }).getAccessToken?.() ?? "";
+      const token = (await sdk.getHttpClient().getValidAccessToken()) ?? "";
       const res = await fetch("/api/admin/delete-product",
         { method: "POST", headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ id }) });
       const out = await res.json().catch(() => ({} as { ok?: boolean; error?: string }));
