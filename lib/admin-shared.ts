@@ -15,6 +15,8 @@ export type Order = {
   delivery_address: { name?: string; phone?: string; line?: string; note?: string } | null;
   customer_note: string | null;
   admin_note: string | null;
+  coupon_code?: string | null;
+  discount_amount?: number | string | null;
   created_at: string;
   updated_at: string;
 };

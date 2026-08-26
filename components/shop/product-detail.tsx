@@ -27,12 +27,14 @@ export default function ProductDetail({
   options,
   related,
   relatedImages,
+  reviewStats,
 }: {
   product: Product;
   images: ProductImage[];
   options: FrameOption[];
   related: Product[];
   relatedImages: Record<string, ProductImage[]>;
+  reviewStats?: { avg: number; count: number };
 }) {
   const { lang, t } = useLanguage();
   const cart = useCart();
@@ -196,6 +198,18 @@ export default function ProductDetail({
             <h1 className="pd-in mt-4 font-serif text-4xl leading-[1.05] text-ivory md:text-6xl">
               {name}
             </h1>
+            {/* listing #9: star aggregate from approved photo reviews */}
+            {reviewStats && reviewStats.count > 0 && (
+              <p className="pd-in mt-3 flex items-center gap-2.5">
+                <span className="text-sm tracking-[0.14em] text-gold-light" aria-label={`${reviewStats.avg} out of 5 stars`}>
+                  {"★".repeat(Math.round(reviewStats.avg))}
+                  <span className="text-ivory/20">{"★".repeat(5 - Math.round(reviewStats.avg))}</span>
+                </span>
+                <span className="text-xs text-ivory/50">
+                  {reviewStats.avg.toFixed(1)} · {reviewStats.count} customer review{reviewStats.count === 1 ? "" : "s"}
+                </span>
+              </p>
+            )}
             <p className="pd-in mt-4 max-w-lg text-sm leading-6 text-ivory/55 md:text-base md:leading-7">
               {desc}
             </p>

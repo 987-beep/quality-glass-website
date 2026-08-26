@@ -64,6 +64,16 @@ export default function ProductsAdmin() {
     [images]
   );
 
+  // listing #7: photo-pending badge — count real photos per product
+  const photoCountFor = useCallback(
+    (id: string) => images.filter((i) => i.product_id === id).length,
+    [images]
+  );
+  const photoPendingCount = useMemo(
+    () => products.filter((p) => photoCountFor(p.id) < 2).length,
+    [products, photoCountFor]
+  );
+
   const openEdit = useCallback((p?: Product) => {
     setErr("");
     if (!p) { setEdit({ ...EMPTY }); setEditImages([]); return; }
@@ -213,7 +223,12 @@ export default function ProductsAdmin() {
         >
           + New product
         </button>
-        <span className="ml-auto text-[10px] uppercase tracking-[0.16em] text-ivory/35">{shown.length} products</span>
+        {photoPendingCount > 0 && (
+          <span className="ml-auto rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-gold-light">
+            📷 {photoPendingCount} need photos
+          </span>
+        )}
+        <span className={`${photoPendingCount > 0 ? "" : "ml-auto "}text-[10px] uppercase tracking-[0.16em] text-ivory/35`}>{shown.length} products</span>
       </div>
 
       <div className="mt-5 grid gap-3">
@@ -225,6 +240,11 @@ export default function ProductsAdmin() {
               <p className="mt-0.5 text-[11px] text-ivory/45">
                 {p.slug} · {inr(p.base_price)} · {p.frame_tone}
                 {!p.is_active && <span className="ml-2 rounded bg-red-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-300">hidden</span>}
+                {photoCountFor(p.id) < 2 && (
+                  <span className="ml-2 rounded bg-gold/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold-light" title="This product has fewer than 2 photos — add more for the featured grid">
+                    📷 {photoCountFor(p.id)}/2 photos
+                  </span>
+                )}
               </p>
             </div>
             <button onClick={() => toggle(p, "is_featured")} data-cursor="link" title="Featured toggle"

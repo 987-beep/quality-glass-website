@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { biText, inr, dt, publicStorageUrl } from "@/lib/admin-shared";
 import { getInsforge } from "@/lib/insforge/client";
@@ -214,6 +214,12 @@ function ReviewForm({ orderNo, phone }: { orderNo: string; phone: string }) {
 export default function TrackPage() {
   const [orderNo, setOrderNo] = useState("");
   const [phone, setPhone] = useState("");
+
+  // listing #1: prefill order number from the WhatsApp track link (/track?o=QG-XXXXXX)
+  useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("o");
+    if (o) setOrderNo(o.trim().toUpperCase());
+  }, []);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [order, setOrder] = useState<TrackedOrder | null>(null);

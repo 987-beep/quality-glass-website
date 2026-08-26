@@ -110,6 +110,28 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
     finally { setBusy(""); }
   }, [adminNote, rejectNote, proofs, userId, load, loadDetail]);
 
+  // listing #5: one-tap advance from the collapsed row — no detail panel needed
+  const quickAdvance = useCallback(async (o: Order, to: string) => {
+    setBusy(o.id + to); setErr("");
+    try {
+      const db = getInsforge().database;
+      const { error } = await db.from("orders").update({ status: to, updated_at: new Date().toISOString() }).eq("id", o.id);
+      if (error) throw new Error(errMsg(error));
+      if (to === "paid") {
+        // approve the newest pending proof inline, if one exists
+        const pr = await db.from("payment_proofs").select("id").eq("order_id", o.id).eq("status", "pending").order("created_at", { ascending: false }).limit(1);
+        const row = (Array.isArray(pr.data) ? pr.data[0] : pr.data) as { id?: string } | undefined;
+        if (row?.id) {
+          await db.from("payment_proofs").update({ status: "approved", reviewed_by: userId, reviewed_at: new Date().toISOString() }).eq("id", row.id);
+        }
+      }
+      await load();
+      if (openId === o.id) await loadDetail(o.id);
+      toastMsg(`Order ${o.order_no} → ${ORDER_STATUS[to]?.en || to}`);
+    } catch (e) { setErr(errMsg(e)); }
+    finally { setBusy(""); }
+  }, [userId, load, loadDetail, openId]);
+
   const viewProof = useCallback(async (p: PaymentProof) => {
     setBusy(p.id); setErr("");
     try {
@@ -138,6 +160,21 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
   }, [orders, filter]);
 
   const actionCount = useMemo(() => orders.filter((o) => o.status === "payment_verifying").length, [orders]);
+
+  // listing #5: walk-in shortcut — paste order no (or full track URL) from customer's receipt/QR, jump straight to it
+  const [jump, setJump] = useState("");
+  const jumpToOrder = useCallback(() => {
+    const raw = jump.trim().toUpperCase();
+    const m = raw.match(/QG-[A-Z0-9]+/) || raw.match(/[?&]O=([A-Z0-9-]+)/);
+    const no = (m?.[1] || m?.[0] || "").toUpperCase();
+    if (!no) { setErr("Paste an order number like QG-XXXXXX or the full track link."); return; }
+    const hit = orders.find((o) => o.order_no.toUpperCase() === no);
+    if (!hit) { setErr(`Order ${no} not found in the list.`); return; }
+    setFilter("all");
+    setOpenId(hit.id);
+    setJump("");
+    toastMsg(`Jumped to ${no} ✓`);
+  }, [jump, orders]);
 
   if (loading) return <p className="mt-10 animate-pulse text-xs uppercase tracking-[0.25em] text-ivory/40">Loading orders…</p>;
 
@@ -174,6 +211,21 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
         <span className="ml-auto text-[10px] uppercase tracking-[0.16em] text-ivory/35">{shown.length} / {orders.length}</span>
       </div>
 
+      {/* listing #5: walk-in jump — customer shows receipt/track link, paste it here */}
+      <div className="mt-3 flex gap-2">
+        <input
+          value={jump}
+          onChange={(e) => setJump(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && jumpToOrder()}
+          placeholder="Walk-in? Paste order no (QG-…) or track link"
+          className="min-w-0 flex-1 rounded-full border border-ivory/15 bg-white/[0.03] px-4 py-2 text-xs text-ivory placeholder:text-ivory/30 focus:border-gold/50 focus:outline-none"
+        />
+        <button onClick={jumpToOrder} data-cursor="link"
+          className="shrink-0 rounded-full border border-gold/40 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-gold-light transition-colors hover:bg-gold/10">
+          Jump ▸
+        </button>
+      </div>
+
       {shown.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-gold/25 bg-white/[0.02] p-10 text-center text-sm text-ivory/50">
           No orders in this view. Sab taiyaar hai — new orders appear here the moment they land.
@@ -205,6 +257,20 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
                     <svg viewBox="0 0 24 24" className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
                   </div>
                 </button>
+
+                {/* listing #5: one-tap primary action — no need to open the order first */}
+                {!open && actions.find((a) => a.strong) && (
+                  <div className="flex justify-end gap-2 px-4 pb-3 md:px-5">
+                    <button
+                      onClick={() => quickAdvance(o, actions.find((a) => a.strong)!.to)}
+                      disabled={busy === o.id + actions.find((a) => a.strong)!.to}
+                      data-cursor="link"
+                      className="rounded-full bg-gold px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink transition-colors hover:bg-gold-light disabled:opacity-50"
+                    >
+                      {busy === o.id + actions.find((a) => a.strong)!.to ? "…" : `${actions.find((a) => a.strong)!.label} ▸`}
+                    </button>
+                  </div>
+                )}
 
                 {open && (
                   <div className="border-t border-ivory/[0.07] px-4 py-5 md:px-5">
@@ -261,6 +327,12 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
                           );
                         })()}
                         {o.customer_note && <p className="mt-2 rounded-lg bg-white/[0.04] p-3 text-xs text-ivory/60">“{o.customer_note}”</p>}
+                        {o.coupon_code && (
+                          <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-leaf/30 bg-leaf/[0.07] px-3 py-1.5 text-[11px] text-leaf">
+                            🏷️ Coupon <span className="font-mono font-bold">{o.coupon_code}</span>
+                            {Number(o.discount_amount || 0) > 0 && <span className="text-ivory/50">saved {inr(Number(o.discount_amount))}</span>}
+                          </p>
+                        )}
 
                         <label className="mt-5 block">
                           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Admin note</span>

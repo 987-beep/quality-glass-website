@@ -6,6 +6,7 @@ import {
   getFrameOptions,
   getProductBySlug,
   getProducts,
+  getReviewStats,
 } from "@/lib/server/catalog";
 import ProductDetail from "@/components/shop/product-detail";
 
@@ -25,12 +26,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const { slug } = await props.params;
-  const [product, allProducts, allImages, options, cats] = await Promise.all([
+  const [product, allProducts, allImages, options, cats, reviewStats] = await Promise.all([
     getProductBySlug(slug),
     getProducts(),
     getAllProductImages(),
     getFrameOptions(),
     getCategories(),
+    getReviewStats(),
   ]);
   if (!product) notFound();
 
@@ -58,6 +60,7 @@ export default async function ProductPage(props: Props) {
       options={frameless ? [] : options}
       related={relatedFinal}
       relatedImages={relatedImages}
+      reviewStats={reviewStats}
     />
   );
 }

@@ -53,6 +53,12 @@ function CheckoutInner() {
   const [orderItems, setOrderItems] = useState<DbOrderItem[]>([]);
   const [payments, setPayments] = useState<Payments>({});
 
+  // listing #3: offer code state
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; percent_off: number } | null>(null);
+  const [couponErr, setCouponErr] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
+
   // proof state
   const [file, setFile] = useState<File | null>(null);
   const [utr, setUtr] = useState("");
@@ -109,7 +115,30 @@ function CheckoutInner() {
   }, [auth.loading, auth.user, router, resumeOrderId]);
 
   const subtotal = cart.subtotal;
-  const placeTotal = resumeOrderId ? order?.total_amount ?? subtotal : subtotal;
+  // listing #3: discount lives at order level — items keep real prices (price guard untouched)
+  const discountAmt = coupon ? Math.round((subtotal * coupon.percent_off) / 100) : 0;
+  const discounted = Math.max(0, subtotal - discountAmt);
+  const placeTotal = resumeOrderId || order ? order?.total_amount ?? discounted : discounted;
+
+  // listing #3: validate a typed offer code against the public coupons table
+  const applyCoupon = useCallback(async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    setCouponBusy(true); setCouponErr("");
+    try {
+      const { data, error } = await getInsforge().database
+        .from("coupons").select("code, percent_off, min_order").eq("code", code).eq("is_active", true);
+      if (error) throw new Error(errMsg(error));
+      const row = (Array.isArray(data) ? data[0] : data) as { code?: string; percent_off?: number; min_order?: number | string } | undefined;
+      if (!row?.code) throw new Error("That code isn't valid. · यह कोड मान्य नहीं है");
+      if (Number(row.min_order || 0) > subtotal) {
+        throw new Error(`This code needs a minimum order of ₹${Number(row.min_order).toLocaleString("en-IN")}. · न्यूनतम ऑर्डर ₹${Number(row.min_order).toLocaleString("en-IN")} चाहिए`);
+      }
+      setCoupon({ code: row.code, percent_off: Number(row.percent_off) });
+      setCouponInput("");
+    } catch (e) { setCouponErr(errMsg(e)); }
+    finally { setCouponBusy(false); }
+  }, [couponInput, subtotal]);
 
   const ordersCount = useMemo(
     () => (step !== "details" ? orderItems.reduce((n, i) => n + i.qty, 0) : cart.count),
@@ -144,7 +173,9 @@ function CheckoutInner() {
         {
           user_id: auth.user!.id,
           order_no: orderNo,
-          total_amount: subtotal,
+          total_amount: discounted,
+          coupon_code: coupon?.code ?? null,
+          discount_amount: discountAmt,
           delivery_method: delivery,
           delivery_address: delivery === "local_delivery" ? address.trim() || null : null,
           customer_note: note.trim() || null,
@@ -187,7 +218,7 @@ function CheckoutInner() {
     } finally {
       setBusy(false);
     }
-  }, [name, phone, address, note, delivery, cart, subtotal, auth.user, t]);
+  }, [name, phone, address, note, delivery, cart, subtotal, discounted, discountAmt, coupon, auth.user, t]);
 
   const submitProof = useCallback(async () => {
     if (!order) return;
@@ -442,7 +473,7 @@ function CheckoutInner() {
                   className="flex w-full items-center justify-center gap-3 rounded-full bg-gold px-7 py-4 text-sm font-bold uppercase tracking-[0.12em] text-ink shadow-glowgold transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />}
-                  {busy ? t.checkout.placing : t.checkout.placeOrder} · {formatINR(subtotal)}
+                  {busy ? t.checkout.placing : t.checkout.placeOrder} · {formatINR(discounted)}
                 </button>
               </div>
             )}
@@ -593,8 +624,45 @@ function CheckoutInner() {
                 </div>
               ))}
             </div>
+            {/* listing #3: offer code — apply before placing / paying */}
+            {!resumeOrderId && step !== "payment" && (
+              <div className="mt-5 border-t border-gold/15 pt-4">
+                {coupon ? (
+                  <div className="flex items-center justify-between rounded-xl border border-leaf/40 bg-leaf/[0.08] px-4 py-3">
+                    <p className="text-xs font-bold text-leaf">
+                      {coupon.code} · {coupon.percent_off}% off ✓
+                      <span className="ml-2 font-normal text-ivory/50">−{formatINR(discountAmt)}</span>
+                    </p>
+                    <button onClick={() => setCoupon(null)} data-cursor="link" className="text-xs text-ivory/40 underline hover:text-ivory/70">remove</button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyCoupon())}
+                        placeholder="Offer code · ऑफर कोड"
+                        className="min-w-0 flex-1 rounded-xl border border-ivory/15 bg-ink px-4 py-2.5 text-xs uppercase text-ivory placeholder:normal-case placeholder:text-ivory/30 focus:border-gold/60 focus:outline-none"
+                      />
+                      <button onClick={applyCoupon} disabled={couponBusy} data-cursor="link"
+                        className="shrink-0 rounded-xl border border-gold/40 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-gold-light transition-colors hover:bg-gold/10 disabled:opacity-50">
+                        {couponBusy ? "…" : "Apply"}
+                      </button>
+                    </div>
+                    {couponErr && <p className="mt-2 text-[11px] text-red-300">{couponErr}</p>}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mt-5 flex items-center justify-between border-t border-gold/15 pt-4">
-              <p className="text-sm text-ivory/60">{t.checkout.deliverTo}</p>
+              <div>
+                <p className="text-sm text-ivory/60">{t.checkout.deliverTo}</p>
+                {coupon && discountAmt > 0 && (
+                  <p className="mt-0.5 text-[11px] text-ivory/35 line-through">{formatINR(subtotal)}</p>
+                )}
+              </div>
               <p className="font-serif text-2xl text-gold-light">{formatINR(placeTotal)}</p>
             </div>
           </aside>

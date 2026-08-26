@@ -76,6 +76,18 @@ export const getApprovedReviews = () =>
     "?is_approved=eq.true&select=id,author_name,area,rating,quote,photo_url&order=created_at.desc&limit=12"
   );
 
+/** listing #9: shop-wide star aggregate from approved photo reviews (for product pages). */
+export type ReviewStats = { avg: number; count: number };
+export const getReviewStats = async (): Promise<ReviewStats> => {
+  const rows = await dbGet<{ rating: number }>(
+    "reviews",
+    "?is_approved=eq.true&select=rating"
+  );
+  if (rows.length === 0) return { avg: 0, count: 0 };
+  const avg = rows.reduce((s, r) => s + Number(r.rating || 0), 0) / rows.length;
+  return { avg: Math.round(avg * 10) / 10, count: rows.length };
+};
+
 export const getFeaturedProducts = async (limit = 8) => {
   const select = "select=id,slug,name,description,base_price,category_id,frame_tone,is_featured";
   const featured = await dbGet<Product>(

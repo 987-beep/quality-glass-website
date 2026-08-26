@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getInsforge } from "@/lib/insforge/client";
 import { errMsg } from "@/components/providers/auth-provider";
 import { Promo, biText, publicStorageUrl } from "@/lib/admin-shared";
+import CouponsAdmin from "@/components/admin/coupons-admin";
 
 type Blank = {
   id: string | null;
@@ -223,6 +224,9 @@ export default function PromosAdmin() {
           </div>
         </div>
       )}
+
+      {/* listing #3: offer codes for the checkout coupon field */}
+      <CouponsAdmin />
     </section>
   );
 }

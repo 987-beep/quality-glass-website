@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { SHOP } from "@/lib/site-config";
 import { waLink } from "@/lib/whatsapp";
+import { getInsforge } from "@/lib/insforge/client";
+
+const ADVANCE = 200; // listing #4: slot-booking advance for bulk/event jobs
 
 const OCCASIONS = [
   { id: "wedding", en: "Wedding / Shaadi", icon: "💍" },
@@ -35,6 +38,30 @@ export default function BulkPage() {
   const [note, setNote] = useState("");
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
+  const [payments, setPayments] = useState<{ upi_vpa?: string; payee_name?: string }>({});
+
+  // listing #4: load UPI settings only for the advance block (public settings)
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await getInsforge().database.from("site_settings").select("value").eq("key", "payments");
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.value) setPayments(row.value as { upi_vpa?: string; payee_name?: string });
+      } catch { /* advance block simply stays hidden */ }
+    })();
+  }, []);
+
+  const advanceUpiLink = useMemo(() => {
+    if (!payments.upi_vpa) return "";
+    const p = new URLSearchParams({
+      pa: payments.upi_vpa,
+      pn: payments.payee_name || SHOP.name,
+      am: ADVANCE.toFixed(2),
+      cu: "INR",
+      tn: `Bulk advance — ${name.trim() || "event order"}`,
+    });
+    return `upi://pay?${p.toString()}`;
+  }, [payments, name]);
 
   const toggleNeed = (n: string) =>
     setNeeds((xs) => (xs.includes(n) ? xs.filter((x) => x !== n) : [...xs, n]));
@@ -101,6 +128,24 @@ export default function BulkPage() {
               <p className="text-[9px] uppercase tracking-[0.2em] text-ivory/35">Your message preview</p>
               <pre className="mt-2 whitespace-pre-wrap font-sans text-[12px] leading-5 text-ivory/70">{message}</pre>
             </div>
+
+            {/* listing #4: no-show-proof slot booking — optional ₹200 advance via UPI */}
+            {advanceUpiLink && (
+              <div className="mt-5 rounded-xl border border-gold/40 bg-gold/[0.07] p-5 text-center">
+                <p className="font-serif text-lg text-ivory">Reserve your slot · ₹{ADVANCE} advance</p>
+                <p className="mt-2 text-xs leading-5 text-ivory/55">
+                  Event dates fill fast. Pay a fully-adjustable ₹{ADVANCE} advance now — it comes off your final bill.{" "}
+                  <span className="text-ivory/40">स्लॉट पक्का करें — ₹{ADVANCE} एडवांस (अंतिम बिल में घट जाएगा)।</span>
+                </p>
+                <a href={advanceUpiLink} data-cursor="link"
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.14em] text-ink transition-colors hover:bg-gold-light">
+                  Pay ₹{ADVANCE} advance (UPI) ▸
+                </a>
+                <p className="mt-2.5 text-[10px] text-ivory/35">
+                  Opens your UPI app with {payments.payee_name || SHOP.name} · screenshot भेज देना WhatsApp पर
+                </p>
+              </div>
+            )}
             <div className="mt-6 flex flex-col gap-3">
               {link && (
                 <a href={link} target="_blank" rel="noreferrer" data-cursor="link"

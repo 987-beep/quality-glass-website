@@ -109,7 +109,19 @@ export default function Cta() {
                   <span className="h-1.5 w-1.5 rounded-full bg-leaf" />
                   {SHOP.hours}
                 </p>
-                <div className="mt-7 flex flex-col gap-3">
+
+                {/* listing #8: embedded Google Map — near Hotel Ganesh, PNT Colony */}
+                <div className="mt-5 overflow-hidden rounded-xl border border-gold/20">
+                  <iframe
+                    title="Quality Glass Emporium & Photo Framing Center — map"
+                    src="https://www.google.com/maps?q=Quality+Glass+Emporium+Photo+Framing+Center+PNT+Colony+Raebareli&output=embed"
+                    className="h-44 w-full grayscale-[35%] contrast-[1.05]"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3">
                   <a
                     href={SHOP.mapsUrl}
                     target="_blank"
