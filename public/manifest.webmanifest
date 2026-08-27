@@ -1,0 +1,21 @@
+{
+  "name": "Owner Studio — Quality Glass",
+  "short_name": "Owner Studio",
+  "description": "Own your shop from your phone — orders, products, promos, reviews, settings.",
+  "start_url": "/admin?from=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0C0A06",
+  "theme_color": "#0C0A06",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Pending proofs", "url": "/admin?tab=orders", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Orders", "url": "/admin?tab=orders", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Add product", "url": "/admin?tab=products", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

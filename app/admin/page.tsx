@@ -56,7 +56,14 @@ function Splash({ text }: { text: string }) {
 export default function AdminPage() {
   const auth = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("overview");
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>(() => {
+    // deep-link from app shortcuts, e.g. /admin?tab=orders
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("tab");
+      if (q && TABS.some((t) => t.id === q)) return q as (typeof TABS)[number]["id"];
+    }
+    return "overview";
+  });
   const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<OrderRow[]>([]);
   const [statsWarn, setStatsWarn] = useState(false);

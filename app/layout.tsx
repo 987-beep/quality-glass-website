@@ -12,6 +12,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import FloatingContact from "@/components/floating-contact";
 import ChromeGate from "@/components/chrome-gate";
+import PwaRegister from "@/components/pwa-register";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
   title: "Quality Glass Emporium & Photo Framing Center — Raebareli",
   description:
     "Premium photo framing, custom frames, photo printing and glass work at PNT Colony, Raebareli. Rated 4.9 on Justdial. Visit us near Hotel Ganesh, or frame your photo from home.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Owner Studio",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
@@ -48,6 +62,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
             <Preloader />
+            <PwaRegister />
             <CustomCursor />
             <ChromeGate>
               <ScrollFrame />
