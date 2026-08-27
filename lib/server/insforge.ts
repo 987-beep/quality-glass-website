@@ -79,7 +79,8 @@ async function relay(
   req: Request,
   upstream: string,
   authorization: string | null,
-  bodyOverride?: Buffer
+  bodyOverride?: Buffer,
+  opts?: { forwardCookie?: boolean }
 ): Promise<Response> {
   const headers = new Headers();
   headers.set("apikey", INSFORGE_API_KEY);
@@ -93,6 +94,14 @@ async function relay(
   for (const h of ["x-csrf-token", "prefer", "range", "accept"]) {
     const v = req.headers.get(h);
     if (v) headers.set(h, v);
+  }
+  // Without this the refresh-token cookie (bound to OUR origin by the set-cookie
+  // rewrite below) never reaches InsForge: silent refresh 401s and every session
+  // dies when its short-lived access token expires. Forward cookies on the
+  // auth surface so refresh/OAuth flows can complete.
+  if (opts?.forwardCookie) {
+    const cookie = req.headers.get("cookie");
+    if (cookie) headers.set("cookie", cookie);
   }
 
   const hasBody = !["GET", "HEAD"].includes(req.method);
@@ -184,9 +193,9 @@ export async function relayAuth(req: Request, parts: string[]) {
     // signup: bots must not create accounts (trolls/botnets). Honeypot + fill-time.
     const gated = await humanGate(req);
     if (gated instanceof Response) return gated;
-    return relay(req, upstream, extractUserJwt(req), gated);
+    return relay(req, upstream, extractUserJwt(req), gated, { forwardCookie: true });
   }
-  return relay(req, upstream, extractUserJwt(req));
+  return relay(req, upstream, extractUserJwt(req), undefined, { forwardCookie: true });
 }
 
 /**
