@@ -9,6 +9,7 @@ import Counter from "@/components/fx/counter";
 import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced } from "@/lib/fx-helpers";
 import dynamic from "next/dynamic";
+import InstallStudioApp from "@/components/admin/install-studio-app";
 
 const OrdersAdmin = dynamic(() => import("@/components/admin/orders-admin"), { ssr: false });
 const ProductsAdmin = dynamic(() => import("@/components/admin/products-admin"), { ssr: false });
@@ -156,6 +157,7 @@ export default function AdminPage() {
             Back to website
           </Link>
           <div className="flex items-center gap-3">
+            <InstallStudioApp />
             <Link
               href="/admin/users"
               data-cursor="link"
