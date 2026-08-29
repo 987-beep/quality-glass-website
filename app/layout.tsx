@@ -31,6 +31,10 @@ export const metadata: Metadata = {
   title: "Quality Glass Emporium & Photo Framing Center — Raebareli",
   description:
     "Premium photo framing, custom frames, photo printing and glass work at PNT Colony, Raebareli. Rated 4.9 on Justdial. Visit us near Hotel Ganesh, or frame your photo from home.",
+  metadataBase: new URL("https://quality-glass-website.vercel.app"),
+  alternates: {
+    canonical: "https://quality-glass-website.vercel.app/",
+  },
   icons: {
     icon: [
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
