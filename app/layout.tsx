@@ -52,6 +52,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${hindi.variable}`}>
       <body className="grain bg-ink font-sans text-ivory">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Quality Glass Emporium Raebareli",
+              alternateName: "Quality Glass Raebareli",
+              url: "https://quality-glass-website.vercel.app",
+            }),
+          }}
+        />
         <LanguageProvider>
           <AuthProvider>
             <CartProvider>
