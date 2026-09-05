@@ -27,6 +27,6 @@ where username = 'their_username';        -- ← change me (no @, lowercase)
 -- ─────────────────────────────────────────────────────────────────────────────
 --  OWNER ACCOUNT (created 2026-08-23):
 --    username : owneajmal69        → login as @OWNEAJMAL69
---    password : AJMAL6958@
+--    password : [INSERT YOUR OWNER PASSWORD]
 --    name     : Ajmal              role: admin ✅ verified
 -- ─────────────────────────────────────────────────────────────────────────────
