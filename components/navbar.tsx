@@ -93,19 +93,26 @@ export default function Navbar() {
             onClick={goTo("#top")}
             className="group flex items-center gap-3"
             data-cursor="link"
-            aria-label="Quality Glass — home"
+            aria-label="Quality Framing — home"
           >
             <span className="gold-frame flex h-9 w-9 items-center justify-center rounded-[2px] shadow-frame md:h-10 md:w-10">
-              <span className="flex h-[70%] w-[70%] items-end justify-center overflow-hidden bg-ink">
+              <span className="flex h-[78%] w-[78%] items-center justify-center overflow-hidden bg-ink">
                 <svg viewBox="0 0 20 20" className="h-full w-full">
-                  <circle cx="6.5" cy="6" r="2.4" fill="#E8CF8F" />
-                  <path d="M1 17 L8 7 L12.5 13.5 L15 10 L19 17 Z" fill="#C9A24B" />
+                  <defs>
+                    <linearGradient id="qfnav" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0" stopColor="#E8CF8F" />
+                      <stop offset="0.5" stopColor="#C9A24B" />
+                      <stop offset="1" stopColor="#E8CF8F" />
+                    </linearGradient>
+                  </defs>
+                  <text x="10" y="13.6" textAnchor="middle" fontSize="11.5" fontWeight="700"
+                    fontFamily="Georgia, 'Times New Roman', serif" fill="url(#qfnav)">QF</text>
                 </svg>
               </span>
             </span>
             <span className="leading-tight">
               <span className={`block font-serif text-[15px] font-semibold tracking-wide transition-colors md:text-lg ${open ? "text-ivory" : "text-ivory"}`}>
-                Quality Glass
+                Quality Framing
               </span>
               <span className="block text-[8px] uppercase tracking-[0.28em] text-ivory/45 md:text-[9px]">
                 Emporium · Raebareli

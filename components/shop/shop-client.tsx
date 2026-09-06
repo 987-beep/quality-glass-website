@@ -173,18 +173,27 @@ export default function ShopClient({
                 {t.shopPage.customSub}
               </p>
             </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              href={SHOP.whatsapp}
-              target="_blank"
-              rel="noreferrer"
+              href="/studio"
               data-cursor="link"
-              className="group inline-flex items-center gap-3 rounded-full bg-gold px-8 py-4 text-sm font-bold uppercase tracking-[0.14em] text-ink shadow-glowgold transition-colors hover:bg-gold-light"
+              className="group inline-flex items-center justify-center gap-3 rounded-full bg-gold px-8 py-4 text-sm font-bold uppercase tracking-[0.14em] text-ink shadow-glowgold transition-colors hover:bg-gold-light"
             >
               {t.shopPage.customCta}
               <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14m-6-6 6 6-6 6" />
               </svg>
             </Link>
+            <a
+              href={SHOP.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              data-cursor="link"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-ivory/20 px-8 py-4 text-sm font-semibold text-ivory/80 transition-colors hover:border-gold hover:text-gold-light"
+            >
+              WhatsApp
+            </a>
+            </div>
           </div>
         </div>
       </div>

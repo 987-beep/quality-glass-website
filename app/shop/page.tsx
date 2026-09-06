@@ -7,7 +7,7 @@ import {
 import ShopClient from "@/components/shop/shop-client";
 
 export const metadata: Metadata = {
-  title: "Shop — Quality Glass Emporium",
+  title: "Shop — Quality Framing Emporium",
   description:
     "Ready-made photo frames, canvas wraps and gallery pieces, handcrafted in Raebareli. Order online, pay by UPI.",
 };

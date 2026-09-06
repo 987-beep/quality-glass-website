@@ -4,9 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getInsforge } from "@/lib/insforge/client";
 import { errMsg } from "@/components/providers/auth-provider";
 import { publicStorageUrl } from "@/lib/admin-shared";
+import { THEMES, DEFAULT_THEME } from "@/lib/theme";
+import { useTheme } from "@/components/providers/theme-provider";
 
 type Payments = { upi_vpa?: string; payee_name?: string; upi_qr_url?: string };
-type Shop = { announcement_en?: string; announcement_hi?: string };
+type Shop = { announcement_en?: string; announcement_hi?: string; theme?: string };
 
 const inputCls =
   "w-full rounded-lg border border-ivory/15 bg-ink px-3 py-2.5 text-sm text-ivory placeholder:text-ivory/25 focus:border-gold/60 focus:outline-none";
@@ -14,8 +16,9 @@ const labelCls = "text-[10px] font-bold uppercase tracking-[0.18em] text-gold bl
 const cardCls = "rounded-2xl border border-ivory/10 bg-white/[0.03] p-5 md:p-6";
 
 export default function SettingsAdmin() {
-  const [pay, setPay] = useState<Payments>({ upi_vpa: "", payee_name: "Quality Glass Emporium", upi_qr_url: "" });
-  const [shop, setShop] = useState<Shop>({ announcement_en: "", announcement_hi: "" });
+  const { setTheme: applyLiveTheme } = useTheme();
+  const [pay, setPay] = useState<Payments>({ upi_vpa: "", payee_name: "Quality Framing Emporium", upi_qr_url: "" });
+  const [shop, setShop] = useState<Shop>({ announcement_en: "", announcement_hi: "", theme: DEFAULT_THEME });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
@@ -30,9 +33,9 @@ export default function SettingsAdmin() {
         const { data } = await getInsforge().database.from("site_settings").select("key, value");
         const rows = (data || []) as { key: string; value: Record<string, unknown> }[];
         const p = rows.find((r) => r.key === "payments");
-        if (p?.value) setPay({ upi_vpa: "", payee_name: "Quality Glass Emporium", upi_qr_url: "", ...p.value } as Payments);
+        if (p?.value) setPay({ upi_vpa: "", payee_name: "Quality Framing Emporium", upi_qr_url: "", ...p.value } as Payments);
         const s = rows.find((r) => r.key === "shop");
-        if (s?.value) setShop(s.value as unknown as Shop);
+        if (s?.value) setShop({ theme: DEFAULT_THEME, ...(s.value as unknown as Shop) });
       } catch (e) { setErr(errMsg(e)); }
       finally { setLoading(false); }
     })();
@@ -58,7 +61,7 @@ export default function SettingsAdmin() {
         throw new Error("UPI ID looks off — should look like name@bank (e.g. ajmal@ybl).");
       await saveSetting("payments", {
         upi_vpa: pay.upi_vpa?.trim() || "",
-        payee_name: pay.payee_name?.trim() || "Quality Glass Emporium",
+        payee_name: pay.payee_name?.trim() || "Quality Framing Emporium",
         upi_qr_url: pay.upi_qr_url || "",
       });
       toastMsg("Payment settings saved ✓ — checkout QR/VPA updated instantly.");
@@ -72,6 +75,7 @@ export default function SettingsAdmin() {
       await saveSetting("shop", {
         announcement_en: shop.announcement_en?.trim() || "",
         announcement_hi: shop.announcement_hi?.trim() || "",
+        theme: shop.theme || DEFAULT_THEME,
       });
       toastMsg("Announcement saved ✓");
     } catch (e) { setErr(errMsg(e)); }
@@ -116,7 +120,7 @@ export default function SettingsAdmin() {
           </div>
           <div>
             <span className={labelCls}>Payee name</span>
-            <input className={inputCls} value={pay.payee_name || ""} onChange={(e) => setPay({ ...pay, payee_name: e.target.value })} placeholder="Quality Glass Emporium" />
+            <input className={inputCls} value={pay.payee_name || ""} onChange={(e) => setPay({ ...pay, payee_name: e.target.value })} placeholder="Quality Framing Emporium" />
           </div>
           <div>
             <span className={labelCls}>QR code image</span>
@@ -144,6 +148,46 @@ export default function SettingsAdmin() {
       </div>
 
       <div className="grid content-start gap-5">
+        {/* theme picker */}
+        <div className={cardCls}>
+          <h3 className="font-serif text-xl text-ivory">Site theme · साइट थीम</h3>
+          <p className="mt-1 text-xs leading-5 text-ivory/45">
+            Pick a premium accent — the golden look re-colours across the whole site. Press{" "}
+            <span className="text-ivory/70">Save theme</span> to publish it for customers.
+          </p>
+          <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+            {THEMES.map((t) => {
+              const active = (shop.theme || DEFAULT_THEME) === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => { setShop({ ...shop, theme: t.id }); applyLiveTheme(t.id); }}
+                  data-cursor="link"
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${active ? "border-gold/70 bg-gold/[0.08]" : "border-ivory/10 bg-white/[0.02] hover:border-ivory/25"}`}
+                >
+                  <span
+                    className="h-7 w-7 shrink-0 rounded-full ring-2 ring-white/10"
+                    style={{ background: `linear-gradient(135deg, ${t.swatchLight}, ${t.swatch})` }}
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-ivory">{t.name}</span>
+                    <span className="block text-[10px] uppercase tracking-[0.1em] text-ivory/40">{t.hindi}</span>
+                  </span>
+                  {active && <span className="ml-auto text-xs text-gold-light">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={saveShop}
+            disabled={busy === "shop"}
+            data-cursor="link"
+            className="mt-5 w-fit rounded-full bg-gold px-6 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-ink hover:bg-gold-light disabled:opacity-50"
+          >
+            {busy === "shop" ? "Saving…" : "Save theme to the site"}
+          </button>
+        </div>
+
         {/* announcement */}
         <div className={cardCls}>
           <h3 className="font-serif text-xl text-ivory">Shop announcement</h3>

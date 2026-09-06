@@ -1,8 +1,8 @@
 {
-  "name": "Owner Studio — Quality Glass",
-  "short_name": "Owner Studio",
-  "description": "Own your shop from your phone — orders, products, promos, reviews, settings.",
-  "start_url": "/admin?from=pwa",
+  "name": "Quality Framing Emporium — Raebareli",
+  "short_name": "QF Raebareli",
+  "description": "Quality Framing Raebareli — frame your photo, shop frames, track orders on your phone.",
+  "start_url": "/?from=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -14,8 +14,8 @@
     { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Pending proofs", "url": "/admin?tab=orders", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Orders", "url": "/admin?tab=orders", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Add product", "url": "/admin?tab=products", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Shop", "url": "/shop", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Custom Studio", "url": "/studio", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Track order", "url": "/track", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

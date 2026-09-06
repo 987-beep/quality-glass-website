@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLanguage } from "@/components/providers/language-provider";
 import { SHOP } from "@/lib/site-config";
 import RevealText from "@/components/fx/reveal-text";
@@ -38,8 +39,9 @@ export default function Footer() {
         <p className="mt-3 text-[10px] uppercase tracking-[0.35em] text-gold md:text-xs">
           {t.footer.tag}
         </p>
+        <p className="mt-0 text-[10px] uppercase tracking-[0.35em] text-ivory/40 md:text-xs">Quality Framing Emporium · Raebareli</p>
 
-        <div className="mt-12 grid gap-10 border-t border-ivory/10 pt-10 md:grid-cols-3 md:gap-6">
+        <div className="mt-12 grid gap-10 border-t border-ivory/10 pt-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           <div>
             <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-gold">
               {t.footer.visit}
@@ -106,6 +108,29 @@ export default function Footer() {
                   Justdial · {SHOP.rating} ★
                 </a>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-gold">
+              Pages
+            </h3>
+            <ul className="space-y-2.5 text-sm text-ivory/65">
+              {[
+                { href: "/studio", label: "Custom Framing Studio" },
+                { href: "/gallery", label: "Our Work / Gallery" },
+                { href: "/services", label: "Services & Prices" },
+                { href: "/about", label: "About & Our Story" },
+                { href: "/faq", label: "Common Questions" },
+                { href: "/track", label: "Track an Order" },
+                { href: "/bulk", label: "Bulk / Event Orders" },
+              ].map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} data-cursor="link" className="transition-colors hover:text-gold-light">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

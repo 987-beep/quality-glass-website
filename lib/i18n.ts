@@ -206,12 +206,12 @@ const en = {
     owner: "Owner",
   },
   footer: {
-    word: "QUALITY GLASS",
+    word: "QUALITY FRAMING",
     tag: "Emporium & Photo Framing Center — Est. 2018",
     visit: "Visit the shop",
     explore: "Explore",
     contact: "Contact",
-    rights: "© 2026 Quality Glass Emporium · PNT Colony, Raebareli",
+    rights: "© 2026 Quality Framing Emporium · PNT Colony, Raebareli",
     made: "Handcrafted in Raebareli, India",
   },
 };
@@ -424,12 +424,12 @@ const hi: Dict = {
     owner: "मालिक",
   },
   footer: {
-    word: "QUALITY GLASS",
+    word: "QUALITY FRAMING",
     tag: "एम्पोरियम एंड फोटो फ़्रेमिंग सेंटर — 2018 से",
     visit: "दुकान का पता",
     explore: "एक्सप्लोर",
     contact: "संपर्क",
-    rights: "© 2026 क्वालिटी ग्लास एम्पोरियम · पीएनटी कॉलोनी, रायबरेली",
+    rights: "© 2026 क्वालिटी फ़्रेमिंग एम्पोरियम · पीएनटी कॉलोनी, रायबरेली",
     made: "रायबरेली, भारत में निर्मित",
   },
 };

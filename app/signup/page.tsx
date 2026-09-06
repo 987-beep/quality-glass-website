@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import AuthShell from "@/components/auth/auth-shell";
 
 export const metadata: Metadata = {
-  title: "Create account — Quality Glass Emporium & Photo Framing Center, Raebareli",
+  title: "Create account — Quality Framing Emporium & Photo Framing Center, Raebareli",
   robots: { index: false },
 };
 

@@ -16,7 +16,7 @@ const COPY = {
     title: "Welcome back.",
     sub: "Sign in with your @username to track orders, upload payment proof and manage custom framing.",
     cta: "Sign in",
-    swapA: "New to Quality Glass?",
+    swapA: "New to Quality Framing?",
     swapB: "Create an account",
     swapHref: "/signup",
   },
@@ -171,7 +171,7 @@ export default function AuthShell({ mode }: { mode: Mode }) {
                 </svg>
               </span>
             </span>
-            <span className="font-serif text-lg text-ivory">Quality Glass</span>
+            <span className="font-serif text-lg text-ivory">Quality Framing</span>
             <span className="text-[9px] uppercase tracking-[0.28em] text-ivory/40 group-hover:text-gold-light">
               ← Back to site
             </span>
