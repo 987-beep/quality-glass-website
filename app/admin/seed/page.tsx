@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { getInsforge } from "@/lib/insforge/client";
 
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+const RATE_DELAY = 1500; // 1.5 seconds between requests
+
 const CATEGORIES = [
   { slug: "historical-frames", name: { en: "Historical Frames", hi: "ऐतिहासिक फ़्रेम" } },
   { slug: "led-frames", name: { en: "LED Frames", hi: "LED फ़्रेम" } },
@@ -102,6 +105,7 @@ export default function SeedPage() {
           const { data } = await client.database.from(table).select("id");
           if (data) for (const row of data as { id: string }[]) {
             await client.database.from(table).delete().eq("id", row.id);
+            await delay(RATE_DELAY);
           }
           msgs.push(`   Deleted ${(data as unknown[])?.length || 0}`);
           setLog([...msgs]);
@@ -112,11 +116,14 @@ export default function SeedPage() {
         setLog([...msgs]);
         const catMap: Record<string, string> = {};
         for (const cat of CATEGORIES) {
+          await delay(RATE_DELAY);
           const { data, error } = await client.database.from("categories").insert({
             slug: cat.slug, name: cat.name, is_active: true,
           }).select("id");
           if (error) { setError(`❌ Category ${cat.slug}: ${error.message || JSON.stringify(error)}`); return; }
           if (data?.[0]) catMap[cat.slug] = (data[0] as { id: string }).id;
+          msgs.push(`   ✅ ${cat.slug}`);
+          setLog([...msgs]);
         }
         msgs.push(`✅ ${Object.keys(catMap).length} categories created`);
         setLog([...msgs]);
@@ -129,15 +136,16 @@ export default function SeedPage() {
           const catId = catMap[catSlug];
           if (!catId) continue;
           for (const p of items) {
+            await delay(RATE_DELAY);
             const { error } = await client.database.from("products").insert({
               slug: p.s, name: { en: p.en, hi: p.hi }, description: { en: p.d, hi: p.d },
               base_price: p.p, category_id: catId, frame_tone: p.t, is_featured: p.f || false, is_active: true,
             });
             if (error) { setError(`❌ Product ${p.s}: ${error.message || JSON.stringify(error)}`); return; }
             total++;
+            msgs.push(`   ✅ ${p.s}`);
+            setLog([...msgs]);
           }
-          msgs.push(`   ✅ ${catSlug}: ${items.length}`);
-          setLog([...msgs]);
         }
 
         msgs.push(`\n🎉 DONE! ${Object.keys(catMap).length} categories, ${total} products`);
