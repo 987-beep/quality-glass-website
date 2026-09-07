@@ -96,7 +96,21 @@ export default function AdminPage() {
     } catch { setStatsWarn(true); }
   }, []);
 
-  useEffect(() => { if (auth.isAdmin) load(); }, [auth.isAdmin, load]);
+  useEffect(() => { 
+    if (auth.isAdmin) {
+      (async () => {
+        await load();
+        // Check if database is empty and redirect to seed page
+        try {
+          const client = getInsforge();
+          const { data: cats } = await client.database.from("categories").select("id");
+          if (!cats || (Array.isArray(cats) && cats.length < 3)) {
+            router.replace("/admin/seed");
+          }
+        } catch { /* ignore */ }
+      })();
+    }
+  }, [auth.isAdmin, load, router]);
 
   const ref = useGsap((el, q) => {
     if (prefersReduced() || !auth.isAdmin) return;
