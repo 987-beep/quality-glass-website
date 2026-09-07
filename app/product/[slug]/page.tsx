@@ -7,9 +7,7 @@ import {
   getProductBySlug,
   getProducts,
   getReviewStats,
-  priceOf,
 } from "@/lib/server/catalog";
-import { primaryImage } from "@/lib/product-media";
 import ProductDetail from "@/components/shop/product-detail";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +17,9 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { slug } = await props.params;
   const p = await getProductBySlug(slug);
-  if (!p) return { title: "Not found — Quality Framing Emporium" };
+  if (!p) return { title: "Not found — Quality Glass Emporium" };
   return {
-    title: `${p.name.en ?? p.slug} — Quality Framing Emporium`,
+    title: `${p.name.en ?? p.slug} — Quality Glass Emporium`,
     description: p.description?.en ?? undefined,
   };
 }
@@ -55,38 +53,17 @@ export default async function ProductPage(props: Props) {
     relatedImages[r.slug] = allImages.filter((i) => i.product_id === r.id);
   }
 
-  const productImages = allImages.filter((i) => i.product_id === product.id);
-  const primary = primaryImage(product.slug, productImages);
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name?.en ?? product.slug,
-    description: product.description?.en ?? undefined,
-    image: [primary.src],
-    brand: { "@type": "Brand", name: "Quality Framing Emporium" },
-    offers: {
-      "@type": "Offer",
-      price: priceOf(product),
-      priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
-      url: `https://quality-glass-website.vercel.app/product/${product.slug}`,
-    },
-  };
+  // Filter out size options - user selects size when uploading
+  const filteredOptions = frameless ? [] : options.filter(o => o.kind !== "size");
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <ProductDetail
-        product={product}
-        images={productImages}
-        options={frameless ? [] : options}
-        related={relatedFinal}
-        relatedImages={relatedImages}
-        reviewStats={reviewStats}
-      />
-    </>
+    <ProductDetail
+      product={product}
+      images={allImages.filter((i) => i.product_id === product.id)}
+      options={filteredOptions}
+      related={relatedFinal}
+      relatedImages={relatedImages}
+      reviewStats={reviewStats}
+    />
   );
 }

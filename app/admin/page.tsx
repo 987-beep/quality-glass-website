@@ -10,6 +10,7 @@ import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced } from "@/lib/fx-helpers";
 import dynamic from "next/dynamic";
 import InstallStudioApp from "@/components/admin/install-studio-app";
+import SeedDatabaseButton from "@/components/admin/seed-database";
 
 const OrdersAdmin = dynamic(() => import("@/components/admin/orders-admin"), { ssr: false });
 const ProductsAdmin = dynamic(() => import("@/components/admin/products-admin"), { ssr: false });
@@ -58,7 +59,6 @@ export default function AdminPage() {
   const auth = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>(() => {
-    // deep-link from app shortcuts, e.g. /admin?tab=orders
     if (typeof window !== "undefined") {
       const q = new URLSearchParams(window.location.search).get("tab");
       if (q && TABS.some((t) => t.id === q)) return q as (typeof TABS)[number]["id"];
@@ -119,7 +119,7 @@ export default function AdminPage() {
             </span>
             <h1 className="font-serif text-2xl text-ivory">Owner-only area</h1>
             <p className="mt-3 text-sm leading-6 text-ivory/55">
-              You’re signed in as <span className="text-ivory/85">{auth.user.email}</span> — this studio belongs to the shop owner.
+              You&apos;re signed in as <span className="text-ivory/85">{auth.user.email}</span> — this studio belongs to the shop owner.
             </p>
             <div className="mt-7 flex flex-col gap-3">
               <button onClick={auth.signOut} data-cursor="link"
@@ -158,11 +158,8 @@ export default function AdminPage() {
           </Link>
           <div className="flex items-center gap-3">
             <InstallStudioApp />
-            <Link
-              href="/admin/users"
-              data-cursor="link"
-              className="inline-flex items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gold-light transition-colors hover:bg-gold/20"
-            >
+            <Link href="/admin/users" data-cursor="link"
+              className="inline-flex items-center gap-2 rounded-full border border-gold/35 bg-gold/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gold-light transition-colors hover:bg-gold/20">
               <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
@@ -192,7 +189,7 @@ export default function AdminPage() {
             </span>
           )}
           <p className="mt-3 max-w-lg text-sm leading-6 text-ivory/50">
-            Your control room — approve UPI payments, move orders along, tweak products & prices, run offers, and set your QR.
+            Your control room — approve UPI payments, move orders along, tweak products &amp; prices, run offers, and set your QR.
           </p>
         </div>
 
@@ -205,14 +202,12 @@ export default function AdminPage() {
         {/* stats */}
         <div className="ad-in mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {cards.map((c) => (
-            <button
-              key={c.label}
+            <button key={c.label}
               onClick={() => setTab(c.label.startsWith("Payments") ? "orders" : c.label.startsWith("Live") ? "products" : "orders")}
               data-cursor="link"
               className={`rounded-2xl border p-5 text-left transition-colors md:p-6 ${
                 c.accent ? "border-gold/45 bg-gold/[0.08] hover:bg-gold/[0.12]" : "border-ivory/10 bg-white/[0.03] hover:border-gold/30"
-              }`}
-            >
+              }`}>
               <Counter value={c.value} className={`font-serif text-3xl md:text-4xl ${c.accent ? "text-gold" : "text-gold-light"}`} />
               <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-ivory/45">{c.label}</p>
             </button>
@@ -222,16 +217,12 @@ export default function AdminPage() {
         {/* tabs */}
         <div className="ad-in mt-12 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              data-cursor="link"
+            <button key={t.id} onClick={() => setTab(t.id)} data-cursor="link"
               className={`shrink-0 rounded-full border px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
                 tab === t.id
                   ? "border-gold bg-gold/15 text-gold-light"
                   : "border-ivory/15 text-ivory/55 hover:border-gold/40 hover:text-ivory"
-              }`}
-            >
+              }`}>
               {t.label} <span className="text-[9px] opacity-60">{t.hi}</span>
             </button>
           ))}
@@ -275,7 +266,7 @@ export default function AdminPage() {
                     <li><span className="mr-2 rounded bg-gold px-1.5 py-0.5 text-[10px] font-bold text-ink">1</span>
                       Customer pays your UPI and uploads a screenshot → order turns <span className="text-gold-light">gold: Verify payment</span>.</li>
                     <li><span className="mr-2 rounded bg-gold px-1.5 py-0.5 text-[10px] font-bold text-ink">2</span>
-                      Open <span className="text-ivory/85">Orders & Payments</span>, view the screenshot, approve or reject in one tap.</li>
+                      Open <span className="text-ivory/85">Orders &amp; Payments</span>, view the screenshot, approve or reject in one tap.</li>
                     <li><span className="mr-2 rounded bg-gold px-1.5 py-0.5 text-[10px] font-bold text-ink">3</span>
                       Advance it: production → pickup/delivery → completed. Customer sees every step on their account page.</li>
                   </ol>
@@ -284,10 +275,11 @@ export default function AdminPage() {
                   <h2 className="font-serif text-xl text-ivory">Coming next</h2>
                   <ul className="mt-3 space-y-2 text-xs leading-5 text-ivory/50">
                     <li>· Customer list with WhatsApp shortcuts</li>
-                    <li>· Sales-by-category chart & monthly report</li>
+                    <li>· Sales-by-category chart &amp; monthly report</li>
                     <li>· Edit homepage hero text from here</li>
                   </ul>
                 </div>
+                <SeedDatabaseButton />
               </div>
             </section>
           )}

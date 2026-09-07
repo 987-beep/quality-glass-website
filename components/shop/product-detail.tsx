@@ -19,7 +19,7 @@ import type {
 } from "@/lib/server/catalog";
 import { SHOP } from "@/lib/site-config";
 
-const KIND_ORDER: Record<string, number> = { size: 0, glass: 1, moulding: 2, mat: 3 };
+const KIND_ORDER: Record<string, number> = { glass: 1, moulding: 2, mat: 3 };
 
 export default function ProductDetail({
   product,
@@ -50,6 +50,8 @@ export default function ProductDetail({
   const groups = useMemo(() => {
     const g = new Map<string, FrameOption[]>();
     for (const o of options) {
+      // Skip size options - user selects size when uploading
+      if (o.kind === "size") continue;
       const list = g.get(o.kind) ?? [];
       list.push(o);
       g.set(o.kind, list);
@@ -101,7 +103,7 @@ export default function ProductDetail({
       .filter(Boolean)
       .join(", ");
     return encodeURIComponent(
-      `Hi Quality Framing! I'd like to order:\n• ${product.name.en} × ${qty}\n• Options: ${opts || "default"}\n• Total: ${formatINR(total)}\n• Link: https://quality-glass-website.vercel.app/shop/${product.slug}\n(Please confirm availability — from the website)`
+      `Hi Quality Glass! I'd like to order:\n• ${product.name.en} × ${qty}\n• Options: ${opts || "default"}\n• Total: ${formatINR(total)}\n• Link: https://quality-glass-website.vercel.app/shop/${product.slug}\n(Please confirm availability — from the website)`
     );
   }, [selected, qty, total, groups, product.name.en, product.slug]);
 
