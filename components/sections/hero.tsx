@@ -79,7 +79,7 @@ function WallSlider({ images }: { images: WallImage[] }) {
             loading={i === 0 ? "eager" : "lazy"}
             className={`absolute inset-0 h-full w-full object-cover transition-all duration-[950ms] ease-out ${
               active
-                ? "translate-x-0 opacity-[0.58] saturate-[1.05]"
+                ? "translate-x-0 opacity-[0.58] saturate-[1.05] ken-burns"
                 : wasActive
                   ? "-translate-x-10 opacity-0"
                   : "translate-x-12 opacity-0"
@@ -189,7 +189,7 @@ export default function Hero({ wallImages = [] }: { wallImages?: WallImage[] }) 
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="link"
-                className="inline-flex items-center gap-3 rounded-full bg-gold px-7 py-4 text-sm font-bold uppercase tracking-[0.12em] text-ink shadow-glowgold transition-colors hover:bg-gold-light"
+                className="pulse-cta inline-flex items-center gap-3 rounded-full bg-gold px-7 py-4 text-sm font-bold uppercase tracking-[0.12em] text-ink shadow-glowgold transition-colors hover:bg-gold-light"
               >
                 {t.hero.cta1}
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2">
