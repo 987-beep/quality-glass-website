@@ -13,11 +13,20 @@ const HASHES = ["#top", "/shop", "#studio", "#reviews", "#contact"];
 export default function Navbar() {
   const { t, lang, setLang } = useLanguage();
   const auth = useAuth();
-  const { count: cartCount } = useCart();
+  const { count: cartCount, lastAdded } = useCart();
   const [scrolled, setScrolled] = useState(false);
+  const [cartBounce, setCartBounce] = useState(false);
   const [open, setOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const lastY = useRef(0);
+
+  useEffect(() => {
+    if (lastAdded > 0) {
+      setCartBounce(true);
+      const timer = setTimeout(() => setCartBounce(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [lastAdded]);
 
   useEffect(() => {
     if (
@@ -80,39 +89,32 @@ export default function Navbar() {
     <>
       <header
         ref={navRef}
-        className={`fixed inset-x-0 top-0 z-[70] transition-colors duration-500 ${
+        className={`fixed inset-x-0 top-0 z-[70] transition-all duration-500 ${
           scrolled
-            ? "border-b border-gold/10 bg-ink/80 backdrop-blur-md"
-            : "border-b border-transparent bg-transparent"
+            ? "border-b border-gold/10 bg-ink/80 backdrop-blur-md h-14 md:h-16"
+            : "border-b border-transparent bg-transparent h-16 md:h-20"
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-5 md:h-20 md:px-10">
+        <div className={`mx-auto flex max-w-[1440px] items-center justify-between px-5 md:px-10 ${scrolled ? "h-14 md:h-16" : "h-16 md:h-20"}`}>
           {/* brand */}
           <a
             href="#top"
             onClick={goTo("#top")}
             className="group flex items-center gap-3"
             data-cursor="link"
-            aria-label="Quality Framing — home"
+            aria-label="Quality Glass — home"
           >
-            <span className="gold-frame flex h-9 w-9 items-center justify-center rounded-[2px] shadow-frame md:h-10 md:w-10">
-              <span className="flex h-[78%] w-[78%] items-center justify-center overflow-hidden bg-ink">
+            <span className={`gold-frame flex h-9 w-9 items-center justify-center rounded-[2px] shadow-frame md:h-10 md:w-10 transition-transform duration-500 ${scrolled ? "scale-85" : "scale-100"}`}>
+              <span className="flex h-[70%] w-[70%] items-end justify-center overflow-hidden bg-ink">
                 <svg viewBox="0 0 20 20" className="h-full w-full">
-                  <defs>
-                    <linearGradient id="qfnav" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0" stopColor="#E8CF8F" />
-                      <stop offset="0.5" stopColor="#C9A24B" />
-                      <stop offset="1" stopColor="#E8CF8F" />
-                    </linearGradient>
-                  </defs>
-                  <text x="10" y="13.6" textAnchor="middle" fontSize="11.5" fontWeight="700"
-                    fontFamily="Georgia, 'Times New Roman', serif" fill="url(#qfnav)">QF</text>
+                  <circle cx="6.5" cy="6" r="2.4" fill="#E8CF8F" />
+                  <path d="M1 17 L8 7 L12.5 13.5 L15 10 L19 17 Z" fill="#C9A24B" />
                 </svg>
               </span>
             </span>
             <span className="leading-tight">
               <span className={`block font-serif text-[15px] font-semibold tracking-wide transition-colors md:text-lg ${open ? "text-ivory" : "text-ivory"}`}>
-                Quality Framing
+                Quality Glass
               </span>
               <span className="block text-[8px] uppercase tracking-[0.28em] text-ivory/45 md:text-[9px]">
                 Emporium · Raebareli
@@ -167,7 +169,7 @@ export default function Navbar() {
               href="/cart"
               data-cursor="link"
               aria-label="Cart"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-ivory/15 text-ivory/75 transition-colors hover:border-gold hover:text-gold-light"
+              className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-ivory/15 text-ivory/75 transition-all duration-300 hover:border-gold hover:text-gold-light ${cartBounce ? "animate-bounce" : ""}`}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="9" cy="21" r="1" />
@@ -175,7 +177,7 @@ export default function Navbar() {
                 <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-bold text-ink">
+                <span className="badge-pop absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-bold text-ink">
                   {cartCount}
                 </span>
               )}

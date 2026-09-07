@@ -28,6 +28,7 @@ type CartCtxValue = {
   count: number;
   subtotal: number;
   ready: boolean;
+  lastAdded: number;
   add: (item: Omit<CartItem, "key" | "qty">, qty?: number) => void;
   setQty: (key: string, qty: number) => void;
   remove: (key: string) => void;
@@ -39,6 +40,7 @@ const CartCtx = createContext<CartCtxValue>({
   count: 0,
   subtotal: 0,
   ready: false,
+  lastAdded: 0,
   add: () => {},
   setQty: () => {},
   remove: () => {},
@@ -50,6 +52,7 @@ const STORAGE_KEY = "qg-cart-v1";
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
+  const [lastAdded, setLastAdded] = useState(0);
 
   useEffect(() => {
     try {
@@ -80,6 +83,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         return [...prev, { ...item, key, qty }];
       });
+      setLastAdded(Date.now());
     },
     []
   );
@@ -107,8 +111,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ items, count, subtotal, ready, add, setQty, remove, clear }),
-    [items, count, subtotal, ready, add, setQty, remove, clear]
+    () => ({ items, count, subtotal, ready, lastAdded, add, setQty, remove, clear }),
+    [items, count, subtotal, ready, lastAdded, add, setQty, remove, clear]
   );
 
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;

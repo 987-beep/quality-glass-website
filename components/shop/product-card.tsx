@@ -37,7 +37,7 @@ export default function ProductCard({
       <div className="relative">
         {/* frame */}
         <div
-          className={`${frame} rounded-[2px] p-[8px] shadow-frame transition-transform duration-500 ease-out group-hover:-translate-y-1.5 group-hover:rotate-[0.6deg] md:p-[10px]`}
+          className={`${frame} rounded-[2px] p-[8px] shadow-frame transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.3),0_0_0_1px_rgba(201,162,75,0.15)] group-hover:rotate-[0.6deg] md:p-[10px]`}
         >
           <div className="relative aspect-[4/5] overflow-hidden border border-gold/10 bg-mat">
             <div className="absolute inset-[10px] overflow-hidden bg-ink md:inset-3">
@@ -47,7 +47,7 @@ export default function ProductCard({
                 fill
                 priority={eager}
                 sizes="(max-width:640px) 46vw, (max-width:1024px) 30vw, 280px"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.15]"
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             </div>
