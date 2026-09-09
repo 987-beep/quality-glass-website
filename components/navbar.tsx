@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { gsap } from "@/components/fx/use-gsap";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -14,6 +15,27 @@ export default function Navbar() {
   const { t, lang, setLang } = useLanguage();
   const auth = useAuth();
   const { count: cartCount, lastAdded } = useCart();
+  const pathname = usePathname() || "/";
+  const router = useRouter();
+
+  // After navigating home with a hash (e.g. from /shop -> /#reviews),
+  // scroll to the target section once it has mounted.
+  useEffect(() => {
+    if (pathname !== "/" || !window.location.hash) return;
+    const hash = window.location.hash;
+    const t = window.setTimeout(() => {
+      const el = document.querySelector(hash) as HTMLElement | null;
+      if (!el) return;
+      const lenis = (
+        window as unknown as {
+          lenis?: { scrollTo: (t: HTMLElement | number, o?: object) => void };
+        }
+      ).lenis;
+      if (lenis) lenis.scrollTo(el, { offset: -64 });
+      else el.scrollIntoView({ behavior: "smooth" });
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [pathname]);
   const [scrolled, setScrolled] = useState(false);
   const [cartBounce, setCartBounce] = useState(false);
   const [open, setOpen] = useState(false);
@@ -67,13 +89,26 @@ export default function Navbar() {
   }, [open]);
 
   const goTo = (h: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
     setOpen(false);
+
+    // Real routes (e.g. /shop) — let Next.js <Link> navigate normally.
+    if (h.startsWith("/")) return;
+
     const lenis = (
       window as unknown as {
         lenis?: { scrollTo: (t: HTMLElement | number, o?: object) => void };
       }
     ).lenis;
+
+    // Hash targets only exist on the homepage. If we're on another route,
+    // navigate home first and let the effect below scroll once mounted.
+    if (pathname !== "/") {
+      e.preventDefault();
+      router.push(h === "#top" ? "/" : `/${h}`);
+      return;
+    }
+
+    e.preventDefault();
     if (h === "#top") {
       if (lenis) lenis.scrollTo(0);
       else window.scrollTo({ top: 0, behavior: "smooth" });
