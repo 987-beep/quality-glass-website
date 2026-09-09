@@ -249,3 +249,70 @@ a:focus-visible, button:focus-visible {
 .badge-pop {
   animation: badgePop 0.3s ease-out;
 }
+
+/* ============================================
+   PHASE 3 — Shop & product enhancements
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes chipIn {
+  0%   { opacity: 0; transform: scale(0.75); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tabFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* dual price-range slider — transparent track, gold thumbs */
+.qg-range {
+  pointer-events: none;
+  outline: none;
+}
+.qg-range::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: #c9a24b;
+  border: 2px solid #0d0b0a;
+  box-shadow: 0 0 0 1px rgba(201, 162, 75, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.qg-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px rgba(201, 162, 75, 0.2), 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.qg-range::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.05); }
+.qg-range::-moz-range-thumb {
+  pointer-events: auto;
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: #c9a24b;
+  border: 2px solid #0d0b0a;
+  cursor: grab;
+}
+.qg-range::-moz-range-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qg-range::-webkit-slider-thumb { transition: none; }
+}

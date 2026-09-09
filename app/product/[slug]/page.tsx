@@ -7,6 +7,7 @@ import {
   getProductBySlug,
   getProducts,
   getReviewStats,
+  getApprovedReviews,
 } from "@/lib/server/catalog";
 import ProductDetail from "@/components/shop/product-detail";
 
@@ -34,6 +35,7 @@ export default async function ProductPage(props: Props) {
     getCategories(),
     getReviewStats(),
   ]);
+  const approved = await getApprovedReviews();
   if (!product) notFound();
 
   // stickers are peel-and-stick: no framing, no customization picks
@@ -64,6 +66,12 @@ export default async function ProductPage(props: Props) {
       related={relatedFinal}
       relatedImages={relatedImages}
       reviewStats={reviewStats}
+      reviews={approved.slice(0, 6).map((r) => ({
+        author: r.author_name,
+        area: r.area,
+        rating: r.rating,
+        text: r.quote?.en ?? r.quote?.hi ?? "",
+      }))}
     />
   );
 }
