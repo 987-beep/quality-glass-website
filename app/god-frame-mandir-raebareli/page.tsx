@@ -27,7 +27,7 @@ export default function GodFramePage() {
         { q: "Can I get my own deity photo framed?", a: "Yes — send it on WhatsApp or upload it in the studio, and we'll quote." },
         { q: "Do you make matching sets?", a: "Yes, we cut matched sizes and mouldings for a clean festival-ready set." },
       ]}
-      shopCta={{ label: "Browse god frames", href: "/shop?category=hindu-gods" }}
+      shopCta={{ label: "Browse god frames", href: "/shop?category=hindu" }}
     />
   );
 }

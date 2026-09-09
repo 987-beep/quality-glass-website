@@ -27,7 +27,7 @@ export default function AnimePosterPage() {
         { q: "Can I get a custom character poster?", a: "Yes — send us the image and we'll print and frame it in the size you want." },
         { q: "Do you do canvas prints of anime?", a: "Yes, canvas wraps and framed art paper are both available." },
       ]}
-      shopCta={{ label: "Browse anime frames", href: "/shop?category=anime-frames" }}
+      shopCta={{ label: "Browse anime frames", href: "/shop?category=anime" }}
     />
   );
 }

@@ -33,7 +33,7 @@ export default function CustomFramesRaebareli() {
         { q: "Can I match a frame to my existing wall frames?", a: "Yes — bring or WhatsApp us a photo of your current frames and we will match the moulding and colour as closely as possible." },
         { q: "Do you make frames for schools and offices in bulk?", a: "Absolutely — certificates, award frames and samman-patra in bulk get special shop pricing. Message us on WhatsApp with quantity and size for a same-day quote." },
       ]}
-      shopCta={{ label: "Build your custom frame", href: "/shop?category=custom-framing" }}
+      shopCta={{ label: "Build your custom frame", href: "/shop" }}
     />
   );
 }
