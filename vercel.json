@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/seed?secret=qg-seed-2026",
-      "schedule": "*/5 * * * *"
-    }
-  ]
-}
