@@ -61,14 +61,30 @@ const categories: { icon: string; label: { en: string; hi: string }; items: FAQI
 export default function FAQPage() {
   const { lang } = useLanguage();
   const [activeCat, setActiveCat] = useState(0);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  const filteredItems = categories[activeCat].items.filter((item) => {
-    if (!search) return true;
+  const term = search.trim().toLowerCase();
+
+  // When searching, look across EVERY category — a question about mirrors
+  // should be findable without first guessing which tab it lives under.
+  // Each result carries a stable key so the accordion can't open the wrong
+  // row when the filtered list changes.
+  const filteredItems = (
+    term
+      ? categories.flatMap((cat, ci) =>
+          cat.items.map((item, ii) => ({ item, ci, ii }))
+        )
+      : categories[activeCat].items.map((item, ii) => ({
+          item,
+          ci: activeCat,
+          ii,
+        }))
+  ).filter(({ item }) => {
+    if (!term) return true;
     const q = (item.q[lang] || item.q.en).toLowerCase();
     const a = (item.a[lang] || item.a.en).toLowerCase();
-    return q.includes(search.toLowerCase()) || a.includes(search.toLowerCase());
+    return q.includes(term) || a.includes(term);
   });
 
   return (
@@ -100,9 +116,9 @@ export default function FAQPage() {
           {categories.map((cat, i) => (
             <button
               key={cat.label.en}
-              onClick={() => { setActiveCat(i); setOpenIndex(null); setSearch(""); }}
+              onClick={() => { setActiveCat(i); setOpenKey(null); setSearch(""); }}
               className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-300 ${
-                activeCat === i
+                activeCat === i && !term
                   ? "border-gold bg-gold text-ink"
                   : "border-ivory/15 text-ivory/60 hover:border-gold/40 hover:text-ivory"
               }`}
@@ -112,22 +128,39 @@ export default function FAQPage() {
           ))}
         </div>
 
+        {term && (
+          <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-ivory/40">
+            {filteredItems.length}{" "}
+            {lang === "hi"
+              ? "परिणाम — सभी श्रेणियों में"
+              : `result${filteredItems.length === 1 ? "" : "s"} across all categories`}
+          </p>
+        )}
+
         {/* FAQ Items */}
         <div className="mt-8 space-y-3">
-          {filteredItems.map((item, i) => {
-            const isOpen = openIndex === i;
+          {filteredItems.map(({ item, ci, ii }) => {
+            const key = `${ci}-${ii}`;
+            const isOpen = openKey === key;
             return (
               <div
-                key={i}
+                key={key}
                 className={`overflow-hidden rounded-xl border transition-all duration-300 ${
                   isOpen ? "border-gold/30 bg-white/[0.04]" : "border-ivory/10 bg-white/[0.02]"
                 }`}
               >
                 <button
-                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  onClick={() => setOpenKey(isOpen ? null : key)}
                   className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                 >
-                  <span className="text-sm font-medium text-ivory">{item.q[lang] || item.q.en}</span>
+                  <span className="text-sm font-medium text-ivory">
+                    {item.q[lang] || item.q.en}
+                    {term && (
+                      <span className="ml-2 rounded-full border border-gold/30 px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-gold/80">
+                        {categories[ci].label[lang] || categories[ci].label.en}
+                      </span>
+                    )}
+                  </span>
                   <svg
                     viewBox="0 0 24 24"
                     className={`h-4 w-4 shrink-0 text-gold transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
