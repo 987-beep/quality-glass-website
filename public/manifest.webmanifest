@@ -1,7 +1,7 @@
 {
-  "name": "Quality Framing Emporium — Raebareli",
-  "short_name": "QF Raebareli",
-  "description": "Quality Framing Raebareli — frame your photo, shop frames, track orders on your phone.",
+  "name": "Quality Glass Emporium — Raebareli",
+  "short_name": "Quality Glass",
+  "description": "Quality Glass Raebareli — frame your photo, shop frames, track orders on your phone.",
   "start_url": "/?from=pwa",
   "scope": "/",
   "display": "standalone",

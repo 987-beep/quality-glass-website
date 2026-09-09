@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Wedding Album & Shadi Photo Framing in Raebareli | Quality Framing Emporium",
+  title: "Wedding Album & Shadi Photo Framing in Raebareli | Quality Glass Emporium",
   description:
-    "Wedding album framing and shadi photo frames in Raebareli — beautiful, hand-finished albums and collage walls. Order online or visit Quality Framing Emporium, PNT Colony. Pay by UPI.",
+    "Wedding album framing and shadi photo frames in Raebareli — beautiful, hand-finished albums and collage walls. Order online or visit Quality Glass Emporium, PNT Colony. Pay by UPI.",
 };
 
 export default function WeddingAlbumPage() {
@@ -13,7 +13,7 @@ export default function WeddingAlbumPage() {
       h1="Wedding album framing in Raebareli — your big day, kept beautiful"
       h1Sub="रायबरेली में शादी एल्बम फ़्रेमिंग — आपका ख़ास दिन, हमेशा सुंदर"
       intro={[
-        "A wedding album shouldn't live in a box. At Quality Framing Emporium near Hotel Ganesh, PNT Colony, we turn your shadi album into a framed showpiece — mounted cleanly, with glass, and mouldings that match your home.",
+        "A wedding album shouldn't live in a box. At Quality Glass Emporium near Hotel Ganesh, PNT Colony, we turn your shadi album into a framed showpiece — mounted cleanly, with glass, and mouldings that match your home.",
         "Choose a single album frame, a 3-to-5 photo collage wall, or a full set for your family. Order right here on the website or send your album on WhatsApp — we'll quote, you pay by UPI, and we hand-craft it.",
       ]}
       services={[

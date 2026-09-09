@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Anime Poster & Manga Framing in Raebareli | Quality Framing Emporium",
+  title: "Anime Poster & Manga Framing in Raebareli | Quality Glass Emporium",
   description:
-    "Naruto, Gojo, Luffy, Jujutsu Kaisen, Attack on Titan posters and manga frames in Raebareli — printed, framed and delivered. Quality Framing Emporium, PNT Colony. Order online, pay by UPI.",
+    "Naruto, Gojo, Luffy, Jujutsu Kaisen, Attack on Titan posters and manga frames in Raebareli — printed, framed and delivered. Quality Glass Emporium, PNT Colony. Order online, pay by UPI.",
 };
 
 export default function AnimePosterPage() {

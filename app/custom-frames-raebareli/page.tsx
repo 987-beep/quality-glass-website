@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Custom Frame Shop in Raebareli | Made-to-Order Frames — Quality Framing Emporium",
+  title: "Custom Frame Shop in Raebareli | Made-to-Order Frames — Quality Glass Emporium",
   description:
     "Made-to-order custom frames in Raebareli: choose moulding, glass, mat and size for wedding photos, portraits, jerseys and art. Upload your photo online, pay by UPI, pickup or local delivery from PNT Colony, Raebareli.",
   openGraph: {
-    title: "Custom Frame Shop in Raebareli | Quality Framing Emporium",
+    title: "Custom Frame Shop in Raebareli | Quality Glass Emporium",
     description: "Made-to-order frames with your choice of moulding, glass and mount. Upload your photo online — we craft the rest.",
   },
 };

@@ -257,7 +257,7 @@ export default function TrackPage() {
     <main className="min-h-[100svh] px-5 pb-24 pt-14 md:pt-20">
       <div className="mx-auto max-w-xl">
         <p className="text-center text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
-          Quality Framing Emporium · Raebareli
+          Quality Glass Emporium · Raebareli
         </p>
         <h1 className="mt-4 text-center font-serif text-4xl text-ivory md:text-5xl">
           Track your order <span className="block text-2xl text-ivory/50 md:text-3xl">ऑर्डर ट्रैक करें</span>

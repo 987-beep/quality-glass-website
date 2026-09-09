@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * Progressive Web App — "Quality Framing Raebareli".
+ * Progressive Web App — "Quality Glass Raebareli".
  * Registers the service worker on EVERY page so customers can install the
  * app for quick ordering + order tracking. Offline-friendly for static assets.
  */

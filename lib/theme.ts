@@ -32,7 +32,7 @@ export const THEMES: Theme[] = [
     id: "gold",
     name: "Luxe Gold",
     hindi: "सुनहरा लक्ज़री",
-    tagline: "The classic Quality Framing look",
+    tagline: "The classic Quality Glass look",
     swatch: "#C9A24B",
     swatchLight: "#E8CF8F",
   },

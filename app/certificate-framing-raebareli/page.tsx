@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Certificate & Document Framing in Raebareli | Quality Framing Emporium",
+  title: "Certificate & Document Framing in Raebareli | Quality Glass Emporium",
   description:
-    "Certificate framing, degree framing, samman-patra and award frames in Raebareli — uniform, professional and ready in days. Quality Framing Emporium, PNT Colony. Order online.",
+    "Certificate framing, degree framing, samman-patra and award frames in Raebareli — uniform, professional and ready in days. Quality Glass Emporium, PNT Colony. Order online.",
 };
 
 export default function CertificateFramingPage() {

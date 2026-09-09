@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "God Frame & Mandir Photo Frame in Raebareli | Quality Framing Emporium",
+  title: "God Frame & Mandir Photo Frame in Raebareli | Quality Glass Emporium",
   description:
     "God frames and mandir photo frames in Raebareli — Ganesha, Krishna, Ram, Hanuman, Islamic calligraphy and Christian art, beautifully finished. Order online or visit the shop at PNT Colony.",
 };

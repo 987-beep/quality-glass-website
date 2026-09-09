@@ -113,7 +113,7 @@ export default function Cta() {
                 {/* listing #8: embedded Google Map — near Hotel Ganesh, PNT Colony */}
                 <div className="mt-5 overflow-hidden rounded-xl border border-gold/20">
                   <iframe
-                    title="Quality Framing Emporium & Photo Framing Center — map"
+                    title="Quality Glass Emporium & Photo Framing Center — map"
                     src="https://www.google.com/maps?q=Quality+Glass+Emporium+Photo+Framing+Center+PNT+Colony+Raebareli&output=embed"
                     className="h-44 w-full grayscale-[35%] contrast-[1.05]"
                     loading="lazy"

@@ -1,5 +1,5 @@
 export const SHOP = {
-  name: "Quality Framing Emporium",
+  name: "Quality Glass Emporium",
   unit: "Photo Framing Center",
   estd: "2018",
   rating: "4.9",

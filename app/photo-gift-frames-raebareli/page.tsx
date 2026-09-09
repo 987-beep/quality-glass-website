@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import LocalLanding from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Photo Gift Frames & Custom Name Frames in Raebareli | Quality Framing Emporium",
+  title: "Photo Gift Frames & Custom Name Frames in Raebareli | Quality Glass Emporium",
   description:
-    "Birthday, anniversary and custom name photo gift frames in Raebareli — a framed memory makes the best gift. Order online, pay by UPI, pickup or local delivery. Quality Framing Emporium, PNT Colony.",
+    "Birthday, anniversary and custom name photo gift frames in Raebareli — a framed memory makes the best gift. Order online, pay by UPI, pickup or local delivery. Quality Glass Emporium, PNT Colony.",
 };
 
 export default function PhotoGiftPage() {

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import LocalLanding, { LOCAL_BUSINESS_JSONLD } from "@/components/seo/local-landing";
 
 export const metadata: Metadata = {
-  title: "Photo Framing in Raebareli | Quality Framing Emporium & Photo Framing Center",
+  title: "Photo Framing in Raebareli | Quality Glass Emporium & Photo Framing Center",
   description:
     "Premium photo framing in Raebareli near Hotel Ganesh, PNT Colony. Custom frames, god frames, photo printing & framing with glass, mounts and home delivery in Raebareli. Order online or visit the shop — open daily 10 AM–9 PM.",
   openGraph: {
-    title: "Photo Framing in Raebareli | Quality Framing Emporium",
+    title: "Photo Framing in Raebareli | Quality Glass Emporium",
     description: "Custom photo frames, god frames and photo printing in Raebareli. Order online, pay by UPI, pickup or local delivery.",
   },
 };
@@ -18,7 +18,7 @@ export default function PhotoFramingRaebareli() {
         h1="Photo Framing in Raebareli — crafted to last a lifetime"
         h1Sub="रायबरेली में फोटो फ्रेमिंग — आपकी यादें, हमारा हुनर"
         intro={[
-          "A photograph fades, but a well-framed memory stays fresh for decades. At Quality Framing Emporium & Photo Framing Center near Hotel Ganesh, PNT Colony, we frame wedding photos, children's portraits, certificates, deity pictures and art prints for families across Raebareli — with the same care we put into our own.",
+          "A photograph fades, but a well-framed memory stays fresh for decades. At Quality Glass Emporium & Photo Framing Center near Hotel Ganesh, PNT Colony, we frame wedding photos, children's portraits, certificates, deity pictures and art prints for families across Raebareli — with the same care we put into our own.",
           "You can walk into the shop and choose mouldings by hand, or order right here online: pick a design, choose your size, glass and mount, pay by UPI, and collect your frame from the counter or get it delivered anywhere in Raebareli city.",
         ]}
         services={[

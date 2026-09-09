@@ -9,7 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 /**
- * Customer-facing "Install the app" pill for the Quality Framing Raebareli PWA.
+ * Customer-facing "Install the app" pill for the Quality Glass Raebareli PWA.
  * Only shows where the browser supports install; hides after install or dismiss.
  * Suppresses Chrome's own auto-banner (we show our own, one-time, dismissible).
  */
@@ -41,7 +41,7 @@ export default function InstallPrompt() {
         <span className="flex h-[78%] w-[78%] items-center justify-center overflow-hidden bg-ink">
           <svg viewBox="0 0 20 20" className="h-full w-full">
             <text x="10" y="13.4" textAnchor="middle" fontSize="10.5" fontWeight="700"
-              fontFamily="Georgia, 'Times New Roman', serif" fill="#E8CF8F">QF</text>
+              fontFamily="Georgia, 'Times New Roman', serif" fill="#E8CF8F">QG</text>
           </svg>
         </span>
       </span>

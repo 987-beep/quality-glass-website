@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SHOP } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Services & Prices — Photo Framing, Glass, Printing, Lamination | Quality Framing Emporium, Raebareli",
+  title: "Services & Prices — Photo Framing, Glass, Printing, Lamination | Quality Glass Emporium, Raebareli",
   description:
     "Photo framing, custom & made-to-order frames, glass cutting and mirror work, photo printing, lamination, wedding albums, photo restoration and bulk orders — all in Raebareli. See prices and order online.",
 };
@@ -42,7 +42,7 @@ export default function ServicesPage() {
         </h1>
         <p className="mt-2 font-hindi text-lg text-ivory/55">हम जो कुछ भी बनाते हैं — एक ही दुकान पर।</p>
         <p className="mt-5 max-w-xl text-sm leading-7 text-ivory/60 md:text-[15px]">
-          From a single photo to a school&apos;s certificates to a full wall of your travels — Quality Framing Emporium at
+          From a single photo to a school&apos;s certificates to a full wall of your travels — Quality Glass Emporium at
           PNT Colony does it all. Honest walk-in prices, shown straight on the site. Pick a service below, or just
           WhatsApp us your size and we&apos;ll quote instantly.
         </p>
