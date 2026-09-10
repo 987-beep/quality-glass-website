@@ -19,6 +19,7 @@ export type Profile = {
   phone: string | null;
   role: Role;
   avatar_url: string | null;
+  loyalty_points?: number;
 };
 
 export type AuthUser = { id: string; email?: string; name?: string } & Record<

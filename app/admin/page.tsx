@@ -12,6 +12,10 @@ import dynamic from "next/dynamic";
 import InstallStudioApp from "@/components/admin/install-studio-app";
 import OrderAlerts from "@/components/admin/order-alerts";
 import AnalyticsAdmin from "@/components/admin/analytics-admin";
+import BookingsAdmin from "@/components/admin/bookings-admin";
+import StockAdmin from "@/components/admin/stock-admin";
+import WholesaleAdmin from "@/components/admin/wholesale-admin";
+import LoyaltyAdmin from "@/components/admin/loyalty-admin";
 import SeedDatabaseButton from "@/components/admin/seed-database";
 
 const OrdersAdmin = dynamic(() => import("@/components/admin/orders-admin"), { ssr: false });
@@ -40,9 +44,13 @@ const PAID_STATUSES = ["paid", "in_production", "ready_for_pickup", "out_for_del
 const TABS = [
   { id: "overview", label: "Overview", hi: "नज़रिया" },
   { id: "orders", label: "Orders & Payments", hi: "ऑर्डर" },
+  { id: "bookings", label: "Bookings", hi: "बुकिंग" },
   { id: "products", label: "Products", hi: "प्रोडक्ट" },
+  { id: "stock", label: "Stock", hi: "स्टॉक" },
   { id: "promos", label: "Promos & Offers", hi: "ऑफर" },
+  { id: "wholesale", label: "Wholesale", hi: "होलसेल" },
   { id: "reviews", label: "Reviews", hi: "रिव्यू" },
+  { id: "loyalty", label: "Loyalty", hi: "लॉयल्टी" },
   { id: "analytics", label: "Analytics", hi: "एनालिटिक्स" },
   { id: "settings", label: "Settings", hi: "सेटिंग" },
 ] as const;
@@ -302,9 +310,13 @@ export default function AdminPage() {
             </section>
           )}
           {tab === "orders" && <OrdersAdmin userId={auth.user.id} />}
+          {tab === "bookings" && <BookingsAdmin />}
           {tab === "products" && <ProductsAdmin />}
+          {tab === "stock" && <StockAdmin />}
           {tab === "promos" && <PromosAdmin />}
+          {tab === "wholesale" && <WholesaleAdmin />}
           {tab === "reviews" && <ReviewsAdmin />}
+          {tab === "loyalty" && <LoyaltyAdmin />}
           {tab === "analytics" && (
             <div>
               <h2 className="font-serif text-2xl text-ivory mb-4">Sales Analytics</h2>

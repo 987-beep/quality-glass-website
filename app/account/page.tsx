@@ -125,6 +125,20 @@ export default function AccountPage() {
           </button>
         </div>
 
+        {/* loyalty points */}
+        <div className="mt-8 flex items-center justify-between rounded-2xl border border-gold/30 bg-gold/[0.06] px-6 py-4">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">💛 Loyalty points</p>
+            <p className="mt-1 font-serif text-3xl text-gold-light">
+              {auth.profile?.loyalty_points ?? 0}
+              <span className="ml-2 font-sans text-xs text-ivory/45">pts</span>
+            </p>
+          </div>
+          <p className="max-w-[22ch] text-right text-[11px] leading-4 text-ivory/50">
+            Har ₹100 ke order pe 1 point — shop pe redemption ke liye poochhein.
+          </p>
+        </div>
+
         {/* orders */}
         <h2 className="mt-14 font-serif text-2xl text-ivory md:text-3xl">
           {t.account.orders}

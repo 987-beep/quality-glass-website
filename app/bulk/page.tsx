@@ -39,6 +39,7 @@ export default function BulkPage() {
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
   const [payments, setPayments] = useState<{ upi_vpa?: string; payee_name?: string }>({});
+  const [rates, setRates] = useState<{ id: string; label: string; min_qty: number; unit_price: number }[]>([]);
 
   // listing #4: load UPI settings only for the advance block (public settings)
   useEffect(() => {
@@ -48,6 +49,16 @@ export default function BulkPage() {
         const row = Array.isArray(data) ? data[0] : data;
         if (row?.value) setPayments(row.value as { upi_vpa?: string; payee_name?: string });
       } catch { /* advance block simply stays hidden */ }
+    })();
+  }, []);
+
+  // wholesale tiers (public read, owner-managed)
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await getInsforge().database.from("bulk_rates").select("id, label, min_qty, unit_price").eq("is_active", true).order("sort").order("label");
+        setRates((data as typeof rates) ?? []);
+      } catch { /* tiers hide */ }
     })();
   }, []);
 
@@ -114,6 +125,26 @@ export default function BulkPage() {
           and get special bulk pricing on WhatsApp.{" "}
           <span className="text-ivory/35">ज्यादा संख्या में ऑर्डर पर खास दाम — सीधे WhatsApp पर।</span>
         </p>
+
+        {/* wholesale price tiers (owner-managed) */}
+        {rates.length > 0 && (
+          <div className="mt-8 overflow-hidden rounded-2xl border border-gold/25 bg-gold/[0.04]">
+            <div className="border-b border-gold/20 px-5 py-3">
+              <p className="text-center text-xs font-bold uppercase tracking-[0.18em] text-gold">Wholesale rates · होलसेल दरें</p>
+            </div>
+            <table className="w-full text-sm">
+              <tbody>
+                {rates.map((r) => (
+                  <tr key={r.id} className="border-b border-ivory/[0.06] last:border-0">
+                    <td className="px-5 py-3 text-ivory/75">{r.label}</td>
+                    <td className="whitespace-nowrap px-3 py-3 text-center text-[11px] text-ivory/40">{r.min_qty}+ pcs</td>
+                    <td className="whitespace-nowrap px-5 py-3 text-right font-semibold text-gold-light">₹{Number(r.unit_price).toLocaleString("en-IN")}<span className="ml-1 text-[10px] font-normal text-ivory/35">/pc</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {sent ? (
           /* ── success state ── */

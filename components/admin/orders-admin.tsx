@@ -92,6 +92,17 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
       const { error } = await db.from("orders").update(payload).eq("id", o.id);
       if (error) throw new Error(errMsg(error));
 
+      // loyalty: ₹100 spent = 1 pt, auto-credit on completion
+      if (to === "completed" && o.user_id) {
+        const pts = Math.floor(Number(o.total_amount) / 100);
+        if (pts > 0) {
+          const { data: prof } = await db.from("profiles").select("loyalty_points").eq("id", o.user_id);
+          const cur = Array.isArray(prof) && prof[0] ? Number((prof[0] as { loyalty_points?: number }).loyalty_points ?? 0) : 0;
+          await db.from("profiles").update({ loyalty_points: cur + pts }).eq("id", o.user_id);
+          toastMsg(`💛 Loyalty: +${pts} pts credited to customer.`);
+        }
+      }
+
       if (to === "paid" || to === "payment_rejected") {
         const latest = proofs[0];
         if (latest) {
@@ -117,6 +128,15 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
       const db = getInsforge().database;
       const { error } = await db.from("orders").update({ status: to, updated_at: new Date().toISOString() }).eq("id", o.id);
       if (error) throw new Error(errMsg(error));
+      if (to === "completed" && o.user_id) {
+        const pts = Math.floor(Number(o.total_amount) / 100);
+        if (pts > 0) {
+          const { data: prof } = await db.from("profiles").select("loyalty_points").eq("id", o.user_id);
+          const cur = Array.isArray(prof) && prof[0] ? Number((prof[0] as { loyalty_points?: number }).loyalty_points ?? 0) : 0;
+          await db.from("profiles").update({ loyalty_points: cur + pts }).eq("id", o.user_id);
+          toastMsg(`💛 Loyalty: +${pts} pts credited.`);
+        }
+      }
       if (to === "paid") {
         // approve the newest pending proof inline, if one exists
         const pr = await db.from("payment_proofs").select("id").eq("order_id", o.id).eq("status", "pending").order("created_at", { ascending: false }).limit(1);
