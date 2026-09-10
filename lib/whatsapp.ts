@@ -53,7 +53,7 @@ export function orderStatusMessage(o: {
     case "out_for_delivery":
       return `Your order ${o.order_no} (${amt}) is out for delivery 🛵 — it will reach you shortly. Please keep your phone nearby. ${SIGN}${trackLine(o.order_no)}`;
     case "completed":
-      return `Thank you for choosing Quality Glass Emporium! ✨ We hope you love your frame. A quick review helps our small shop a lot: ${SHOP.justdial} 🙏`;
+      return `Thank you for choosing Quality Glass Emporium! ✨ We hope you love your frame. Please drop a quick review on our website (takes 1 minute, huge help): ${SITE}/shop — pick your product and scroll to reviews 🙏 Or on Justdial: ${SHOP.justdial}`;
     case "payment_rejected":
       return `Namaste, we couldn't verify the payment for order ${o.order_no} (${amt}) — the screenshot may be unclear or the amount didn't match. Please sign in → My Account → upload a fresh screenshot, and we'll confirm it quickly. ${SIGN}`;
     case "cancelled":

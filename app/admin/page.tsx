@@ -10,6 +10,8 @@ import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced } from "@/lib/fx-helpers";
 import dynamic from "next/dynamic";
 import InstallStudioApp from "@/components/admin/install-studio-app";
+import OrderAlerts from "@/components/admin/order-alerts";
+import AnalyticsAdmin from "@/components/admin/analytics-admin";
 
 const OrdersAdmin = dynamic(() => import("@/components/admin/orders-admin"), { ssr: false });
 const ProductsAdmin = dynamic(() => import("@/components/admin/products-admin"), { ssr: false });
@@ -40,6 +42,7 @@ const TABS = [
   { id: "products", label: "Products", hi: "प्रोडक्ट" },
   { id: "promos", label: "Promos & Offers", hi: "ऑफर" },
   { id: "reviews", label: "Reviews", hi: "रिव्यू" },
+  { id: "analytics", label: "Analytics", hi: "एनालिटिक्स" },
   { id: "settings", label: "Settings", hi: "सेटिंग" },
 ] as const;
 
@@ -157,6 +160,7 @@ export default function AdminPage() {
             Back to website
           </Link>
           <div className="flex items-center gap-3">
+            <OrderAlerts />
             <InstallStudioApp />
             <Link
               href="/admin/users"
@@ -295,6 +299,12 @@ export default function AdminPage() {
           {tab === "products" && <ProductsAdmin />}
           {tab === "promos" && <PromosAdmin />}
           {tab === "reviews" && <ReviewsAdmin />}
+          {tab === "analytics" && (
+            <div>
+              <h2 className="font-serif text-2xl text-ivory mb-4">Sales Analytics</h2>
+              <AnalyticsAdmin />
+            </div>
+          )}
           {tab === "settings" && <SettingsAdmin />}
         </div>
       </div>

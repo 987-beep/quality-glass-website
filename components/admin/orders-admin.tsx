@@ -420,8 +420,37 @@ export default function OrdersAdmin({ userId }: { userId: string }) {
                         data-cursor="link"
                         className="ml-auto rounded-full border border-ivory/20 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ivory/70 transition-colors hover:border-gold/50 hover:text-gold-light"
                       >
-                        🧾 Print bill
+                        🧾 Bill
                       </a>
+                      <button
+                        type="button"
+                        data-cursor="link"
+                        disabled={busy === o.id + "pdf"}
+                        onClick={async () => {
+                          setBusy(o.id + "pdf");
+                          try {
+                            const sdk = getInsforge();
+                            const token = (await sdk.getHttpClient().getValidAccessToken()) ?? "";
+                            const res = await fetch(`/api/admin/invoice-pdf?id=${o.id}`, { headers: { authorization: `Bearer ${token}` } });
+                            if (!res.ok) {
+                              const j = await res.json().catch(() => ({}));
+                              toastMsg(j?.error ?? "Could not download the PDF.");
+                              return;
+                            }
+                            const blob = await res.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url; a.download = `${o.order_no}.pdf`; a.click();
+                            URL.revokeObjectURL(url);
+                            toastMsg("📄 Invoice PDF downloaded.");
+                          } finally {
+                            setBusy("");
+                          }
+                        }}
+                        className="rounded-full border border-gold/40 bg-gold/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gold-light transition-colors hover:bg-gold/20 disabled:opacity-50"
+                      >
+                        {busy === o.id + "pdf" ? "⏳…" : "⬇ PDF"}
+                      </button>
                       {latestProof && o.status === "payment_verifying" && (
                         <span className="ml-auto self-center text-[10px] text-ivory/40">
                           Review the screenshot, then approve or reject.
