@@ -23,9 +23,10 @@ export default async function Home() {
     <main id="top" className="relative">
       <Hero wallImages={heroImages} />
       <MarqueeStrip />
+      {/* Featured section moved between hero and collections */}
+      <Featured products={featured} images={allImages} />
       <Categories />
       <HowItWorks />
-      <Featured products={featured} images={allImages} />
       <Stats />
       <Testimonials approved={reviews} />
       <Cta />

@@ -1,0 +1,142 @@
+import { NextResponse } from "next/server";
+
+const BASE = "https://37gsnq6s.ap-southeast.insforge.app";
+const KEY = "ik_bf55461d3b2033c979af0ea5df68a07e";
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function api(path: string, opts: RequestInit = {}) {
+  const url = `${BASE}${path}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: KEY,
+    ...((opts.headers as Record<string, string>) || {}),
+  };
+  const res = await fetch(url, { ...opts, headers });
+  const text = await res.text();
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = text;
+  }
+  return { ok: res.ok, status: res.status, data, raw: text };
+}
+
+export async function GET() {
+  try {
+    // Check if categories already exist
+    const { data: existing } = await api("/rest/v1/categories?select=id&limit=1");
+    if (Array.isArray(existing) && existing.length > 0) {
+      return NextResponse.json({ alreadySeeded: true, message: "Database already has data" });
+    }
+
+    // If no categories, seed automatically
+    const logs: string[] = [];
+    logs.push("🌱 Auto-seeding database (empty detected)...");
+
+    const CATEGORIES = [
+      { slug: "historical-frames", name: { en: "Historical Frames", hi: "ऐतिहासिक फ़्रेम" } },
+      { slug: "led-frames", name: { en: "LED Frames", hi: "LED फ़्रेम" } },
+      { slug: "led-mirrors", name: { en: "LED Mirrors", hi: "LED मिरर" } },
+      { slug: "mirrors-insta", name: { en: "Mirrors with Insta Profiles", hi: "इंस्टा प्रोफ़ाइल मिरर" } },
+      { slug: "anime", name: { en: "Anime", hi: "एनिमे" } },
+      { slug: "hindu", name: { en: "Hindu", hi: "हिन्दू" } },
+      { slug: "islamic", name: { en: "Islamic", hi: "इस्लामी" } },
+      { slug: "christian", name: { en: "Christian", hi: "ईसाई" } },
+      { slug: "landscapes", name: { en: "Landscapes", hi: "लैंडस्केप" } },
+      { slug: "calendars", name: { en: "Calendars", hi: "कैलेंडर" } },
+    ];
+
+    const catMap: Record<string, string> = {};
+    for (const cat of CATEGORIES) {
+      await delay(1500);
+      const { data, ok } = await api("/rest/v1/categories", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ slug: cat.slug, name: cat.name, is_active: true }),
+      });
+      if (ok) {
+        const rows = data as { id: string }[] | null;
+        const id = Array.isArray(rows) ? rows[0]?.id : (data as { id?: string })?.id;
+        if (id) catMap[cat.slug] = id;
+        logs.push(`  ✅ ${cat.slug}`);
+      }
+    }
+
+    interface P { s: string; en: string; hi: string; d: string; p: number; t: string; f?: boolean }
+    const PRODUCTS: Record<string, P[]> = {
+      "historical-frames": [
+        { s: "mughal-empire-golden-frame", en: "Mughal Empire Golden Frame", hi: "मुग़ल साम्राज्य गोल्डन फ़्रेम", d: "Ornate Mughal-era design with intricate gold leaf patterns.", p: 1299, t: "gold", f: true },
+        { s: "rajput-heritage-frame", en: "Rajput Heritage Frame", hi: "राजपूत विरासत फ़्रेम", d: "Hand-carved Rajasthani motifs with traditional red and gold.", p: 1199, t: "gold" },
+        { s: "ancient-temple-carving-frame", en: "Ancient Temple Carving Frame", hi: "प्राचीन मंदिर नक्काशी फ़्रेम", d: "South Indian temple architecture with stone carving patterns.", p: 1399, t: "gold", f: true },
+      ],
+      "led-frames": [
+        { s: "rgb-color-changing-led-frame", en: "RGB Color Changing LED Frame", hi: "RGB कलर चेंजिंग LED फ़्रेम", d: "Remote-controlled RGB LED strip with 16 colors.", p: 1999, t: "black", f: true },
+        { s: "music-sync-led-frame", en: "Music Sync LED Frame", hi: "म्यूज़िक सिंक LED फ़्रेम", d: "LED frame that pulses with music beats.", p: 2499, t: "black", f: true },
+        { s: "warm-white-led-frame", en: "Warm White LED Frame", hi: "वॉर्म व्हाइट LED फ़्रेम", d: "Elegant warm white LED backlight frame.", p: 1599, t: "gold" },
+      ],
+      "led-mirrors": [
+        { s: "round-vanity-led-mirror", en: "Round Vanity LED Mirror", hi: "राउंड वैनिटी LED मिरर", d: "Hollywood-style round LED with adjustable brightness.", p: 3499, t: "gold", f: true },
+        { s: "infinity-mirror-led", en: "Infinity LED Mirror", hi: "इन्फ़िनिटी LED मिरर", d: "LED infinity mirror creating endless tunnel illusion.", p: 4999, t: "black", f: true },
+        { s: "full-length-floor-led-mirror", en: "Full Length Floor LED Mirror", hi: "फ़ुल लेंथ फ़्लोर LED मिरर", d: "Standing full-length with perimeter LED strip.", p: 5999, t: "gold" },
+      ],
+      "mirrors-insta": [
+        { s: "instagram-handle-mirror-led", en: "Instagram Handle LED Mirror", hi: "इंस्टाग्राम हैंडल LED मिरर", d: "Custom LED mirror shaped as your IG handle.", p: 3999, t: "black", f: true },
+        { s: "reel-ring-light-mirror", en: "Reels Ring Light Mirror", hi: "रील्स रिंग लाइट मिरर", d: "Large mirror with ring light for perfect reels.", p: 4499, t: "black", f: true },
+        { s: "hashtag-neon-mirror", en: "Hashtag Neon Mirror", hi: "हैशटैग नियॉन मिरर", d: "Mirror with neon hashtag for photo backdrops.", p: 2499, t: "black" },
+      ],
+      anime: [
+        { s: "gojo-infinity-void-frame", en: "Gojo Infinity Void Frame", hi: "गोजो इनफ़िनिटी वॉइड फ़्रेम", d: "Gojo Satoru with Infinity Void technique.", p: 949, t: "black", f: true },
+        { s: "jinwoo-shadow-monarch-frame", en: "Jin-Woo Shadow Monarch Frame", hi: "जिन-वू शैडो मोनार्क फ़्रेम", d: "Sung Jin-Woo as Shadow Monarch.", p: 999, t: "black", f: true },
+        { s: "naruto-rasengan-frame", en: "Naruto Rasengan Frame", hi: "नारुतो रसेंगन फ़्रेम", d: "Naruto with Rasengan energy effect.", p: 899, t: "black" },
+      ],
+      hindu: [
+        { s: "ganesha-utsav-frame", en: "Ganesha Utsav Frame", hi: "गणेश उत्सव फ़्रेम", d: "Vibrant Ganesha festive colors.", p: 949, t: "gold", f: true },
+        { s: "ram-darbar-frame", en: "Ram Darbar Frame", hi: "राम दरबार फ़्रेम", d: "Complete Ram Darbar in royal setting.", p: 1099, t: "gold", f: true },
+        { s: "krishna-murli-frame", en: "Krishna Murli Frame", hi: "कृष्ण मुरली फ़्रेम", d: "Krishna playing flute under moonlight.", p: 999, t: "gold" },
+      ],
+      islamic: [
+        { s: "ayatul-kursi-calligraphy-frame", en: "Ayatul Kursi Calligraphy Frame", hi: "आयतुल कुर्सी सुलेख फ़्रेम", d: "Arabic calligraphy of Ayatul Kursi in gold.", p: 1099, t: "gold", f: true },
+        { s: "makkah-kaaba-frame", en: "Makkah Kaaba Frame", hi: "मक्का काबा फ़्रेम", d: "Holy Kaaba at night with golden dome.", p: 1199, t: "gold", f: true },
+        { s: "bismillah-frame", en: "Bismillah Frame", hi: "बिस्मिल्लाह फ़्रेम", d: "Bismillah calligraphy with geometric patterns.", p: 949, t: "gold" },
+      ],
+      christian: [
+        { s: "sacred-heart-jesus-frame", en: "Sacred Heart of Jesus Frame", hi: "पवित्र हृदय यीशु फ़्रेम", d: "Sacred Heart with golden halo.", p: 1049, t: "gold", f: true },
+        { s: "last-supper-frame", en: "Last Supper Frame", hi: "लास्ट सपर फ़्रेम", d: "Leonardo's Last Supper premium print.", p: 1299, t: "gold", f: true },
+        { s: "virgin-mary-frame", en: "Virgin Mary Frame", hi: "वर्जिन मैरी फ़्रेम", d: "Virgin Mary with blue veil.", p: 999, t: "gold" },
+      ],
+      landscapes: [
+        { s: "himalayan-sunrise-frame", en: "Himalayan Sunrise Frame", hi: "हिमालय सनराइज़ फ़्रेम", d: "Himalayan peaks golden light.", p: 1199, t: "gold", f: true },
+        { s: "taj-mahal-moonlight-frame", en: "Taj Mahal Moonlight Frame", hi: "ताजमहल मूनलाइट फ़्रेम", d: "Taj Mahal under full moon.", p: 1299, t: "gold", f: true },
+        { s: "goa-beach-sunset-frame", en: "Goa Beach Sunset Frame", hi: "गोवा बीच सनसेट फ़्रेम", d: "Golden sunset over Goa beach.", p: 999, t: "gold" },
+      ],
+      calendars: [
+        { s: "premium-wall-calendar-2026", en: "Premium Wall Calendar 2026", hi: "प्रीमियम वॉल कैलेंडर 2026", d: "12-month wall calendar with stunning photos.", p: 499, t: "gold", f: true },
+        { s: "photo-calendar-custom", en: "Custom Photo Calendar", hi: "कस्टम फ़ोटो कैलेंडर", d: "Personalized with YOUR photos.", p: 799, t: "gold", f: true },
+        { s: "hindu-panchang-calendar", en: "Hindu Panchang Calendar", hi: "हिन्दू पंचांग कैलेंडर", d: "Traditional Panchang with festival dates.", p: 599, t: "gold" },
+      ],
+    };
+
+    let total = 0;
+    for (const [catSlug, items] of Object.entries(PRODUCTS)) {
+      const catId = catMap[catSlug];
+      if (!catId) continue;
+      for (const p of items) {
+        await delay(1500);
+        const { ok } = await api("/rest/v1/products", {
+          method: "POST",
+          body: JSON.stringify({
+            slug: p.s, name: { en: p.en, hi: p.hi }, description: { en: p.d, hi: p.d },
+            base_price: p.p, category_id: catId, frame_tone: p.t, is_featured: p.f || false, is_active: true,
+          }),
+        });
+        if (ok) { total++; logs.push(`  ✅ ${p.s}`); }
+      }
+    }
+
+    logs.push(`\n🎉 Seeded ${Object.keys(catMap).length} categories, ${total} products`);
+    return NextResponse.json({ success: true, logs });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+  }
+}

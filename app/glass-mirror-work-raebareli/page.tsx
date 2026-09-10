@@ -33,7 +33,7 @@ export default function GlassMirrorRaebareli() {
         { q: "Can you replace broken glass in an old photo frame?", a: "Yes — bring the frame to the shop and we cut a fresh piece to fit, clean the inside, and refit it neatly. It makes old framed photos look new again." },
         { q: "How is glass priced?", a: "By type, thickness and square area — tell us the size and use on WhatsApp and we will tell you the exact price before you travel to the shop." },
       ]}
-      shopCta={{ label: "See glass & mirror options", href: "/shop?category=glass-mirror" }}
+      shopCta={{ label: "See glass & mirror options", href: "/shop?category=led-mirrors" }}
     />
   );
 }

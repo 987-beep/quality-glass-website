@@ -1,7 +1,7 @@
-/* Owner Studio service worker — v1
+/* Quality Glass Raebareli service worker — v3
    Strategy: network-first (always fresh data), falling back to cache when offline.
    Asset files cache-first. Auth/data API calls are NEVER cached. */
-const CACHE = "owner-studio-v1";
+const CACHE = "quality-glass-v3";
 const ASSET_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 const NO_CACHE = ["/api/", "insforge", "auth"];
 

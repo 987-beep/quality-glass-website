@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/providers/language-provider";
 import { useCart, type CartOption } from "@/components/providers/cart-provider";
 import { useRouter } from "next/navigation";
 import { useGsap, gsap } from "@/components/fx/use-gsap";
 import { prefersReduced } from "@/lib/fx-helpers";
-import FramedImage from "@/components/fx/framed-image";
+import ProductGallery from "@/components/shop/product-gallery";
+import ProductTabs from "@/components/shop/product-tabs";
+import RecentlyViewed, { trackViewed } from "@/components/shop/recently-viewed";
 import ProductCard from "@/components/shop/product-card";
 import { primaryImage } from "@/lib/product-media";
 import { formatINR } from "@/lib/format";
@@ -19,7 +21,7 @@ import type {
 } from "@/lib/server/catalog";
 import { SHOP } from "@/lib/site-config";
 
-const KIND_ORDER: Record<string, number> = { size: 0, glass: 1, moulding: 2, mat: 3 };
+const KIND_ORDER: Record<string, number> = { glass: 1, moulding: 2, mat: 3 };
 
 export default function ProductDetail({
   product,
@@ -28,6 +30,7 @@ export default function ProductDetail({
   related,
   relatedImages,
   reviewStats,
+  reviews = [],
 }: {
   product: Product;
   images: ProductImage[];
@@ -35,6 +38,7 @@ export default function ProductDetail({
   related: Product[];
   relatedImages: Record<string, ProductImage[]>;
   reviewStats?: { avg: number; count: number };
+  reviews?: { author: string; area?: string | null; rating: number; text: string }[];
 }) {
   const { lang, t } = useLanguage();
   const cart = useCart();
@@ -47,9 +51,20 @@ export default function ProductDetail({
   const base = priceOf(product);
   const img = primaryImage(product.slug, images);
 
+  // gallery shots: all DB images, else the fallback
+  const shots = useMemo(() => {
+    const real = images
+      .filter((i) => i.url)
+      .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+      .map((i) => ({ src: i.url as string, alt: i.alt || String(name) }));
+    return real.length ? real : [{ src: img.src, alt: img.alt || String(name) }];
+  }, [images, img.src, img.alt, name]);
+
   const groups = useMemo(() => {
     const g = new Map<string, FrameOption[]>();
     for (const o of options) {
+      // Skip size options - user selects size when uploading
+      if (o.kind === "size") continue;
       const list = g.get(o.kind) ?? [];
       list.push(o);
       g.set(o.kind, list);
@@ -63,6 +78,10 @@ export default function ProductDetail({
     Object.fromEntries(groups.map(([kind, list]) => [kind, list[0]?.key ?? ""]))
   );
   const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    trackViewed({ slug: product.slug, name: String(name), image: img.src, price: base });
+  }, [product.slug, name, img.src, base]);
 
   const unit = useMemo(() => {
     let total = base;
@@ -160,24 +179,7 @@ export default function ProductDetail({
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
           {/* visual */}
           <div className="pd-in lg:sticky lg:top-28 lg:self-start">
-            <div className="mx-auto max-w-[520px]">
-              {simple ? (
-                <div className="overflow-hidden rounded-2xl border border-gold/15 bg-ink-2 shadow-frame">
-                  {/* plain sticker visual — peel & stick items are not framed */}
-                  <img src={img.src} alt={img.alt || name} className="aspect-[4/5] w-full object-cover" />
-                </div>
-              ) : (
-                <FramedImage
-                  src={img.src}
-                  alt={img.alt || name}
-                  tone={(product.frame_tone as "gold" | "wood" | "black") ?? "gold"}
-                  strokes
-                  parallax={false}
-                  aspect="aspect-[4/5]"
-                  sizes="(max-width:1024px) 92vw, 42vw"
-                />
-              )}
-            </div>
+            <ProductGallery shots={shots} tone={product.frame_tone ?? "gold"} framed={!simple} />
             <p className="mt-4 text-center text-[10px] uppercase tracking-[0.26em] text-ivory/30">
               {t.productPage.reviewsBadge}
             </p>
@@ -370,6 +372,14 @@ export default function ProductDetail({
           </div>
         </div>
 
+        {/* tabs: description / specs / reviews / shipping */}
+        <ProductTabs
+          description={desc}
+          reviews={reviews}
+          avgRating={reviewStats?.avg}
+          reviewCount={reviewStats?.count ?? 0}
+        />
+
         {/* related */}
         {related.length > 0 && (
           <section className="mt-28">
@@ -387,6 +397,8 @@ export default function ProductDetail({
             </div>
           </section>
         )}
+
+        <RecentlyViewed excludeSlug={product.slug} />
       </div>
     </main>
   );

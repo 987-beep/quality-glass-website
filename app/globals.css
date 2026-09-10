@@ -4,6 +4,54 @@
 
 :root {
   --mq-skew: 0deg;
+  /* ── site accent (default = Luxe Gold) ───────────────────────── */
+  --c-gold: 201 162 75;
+  --c-gold-light: 232 207 143;
+  --c-gold-dark: 160 124 44;
+  --c-gold-deep: 107 78 20;
+  --glow: 201 162 75;
+}
+
+/* ── premium themes (set via <html data-theme="…">) ─────────────── */
+[data-theme="emerald"] {
+  --c-gold: 38 168 119;
+  --c-gold-light: 111 216 175;
+  --c-gold-dark: 27 124 86;
+  --c-gold-deep: 18 77 52;
+  --glow: 38 168 119;
+}
+[data-theme="rose"] {
+  --c-gold: 208 138 155;
+  --c-gold-light: 238 194 205;
+  --c-gold-dark: 166 100 119;
+  --c-gold-deep: 116 64 77;
+  --glow: 208 138 155;
+}
+[data-theme="sapphire"] {
+  --c-gold: 91 143 227;
+  --c-gold-light: 171 201 247;
+  --c-gold-dark: 60 102 179;
+  --c-gold-deep: 42 70 128;
+  --glow: 91 143 227;
+}
+[data-theme="platinum"] {
+  --c-gold: 196 198 210;
+  --c-gold-light: 231 233 240;
+  --c-gold-dark: 154 157 176;
+  --c-gold-deep: 106 109 128;
+  --glow: 196 198 210;
+}
+[data-theme="amber"] {
+  --c-gold: 217 138 58;
+  --c-gold-light: 242 193 134;
+  --c-gold-dark: 181 98 34;
+  --c-gold-deep: 127 69 22;
+  --glow: 217 138 58;
+}
+
+/* missing utility: the cream passe-partout (mat) inside a frame */
+.bg-mat {
+  background: #f3ede0;
 }
 
 html,
@@ -106,4 +154,213 @@ html.has-cursor [role="button"] {
   .animate-floaty {
     animation: none !important;
   }
+}
+
+/* ===== PHASE 1: Product Card Hover Effects ===== */
+.fcard {
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+.fcard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(201, 162, 75, 0.15);
+}
+.fcard .fi-img {
+  transition: transform 0.4s ease-out;
+}
+.fcard:hover .fi-img {
+  transform: scale(1.15) !important;
+}
+.fcard h3 {
+  transition: color 0.3s ease-out;
+}
+.fcard:hover h3 {
+  color: #E8CF8F;
+}
+
+/* ===== PHASE 1: Ken Burns Effect for Hero ===== */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+.ken-burns {
+  animation: kenBurns 12s ease-in-out infinite;
+}
+
+/* ===== PHASE 1: Loading Skeleton Shimmer ===== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: 8px;
+}
+
+/* ===== PHASE 1: Back to Top Button ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.back-to-top {
+  animation: fadeInUp 0.3s ease-out;
+}
+.back-to-top:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(201, 162, 75, 0.3);
+}
+
+/* ===== PHASE 1: Pulse Animation for CTA ===== */
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 75, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(201, 162, 75, 0);
+  }
+}
+.pulse-cta {
+  animation: pulse-gold 3s ease-in-out infinite;
+}
+
+/* ===== PHASE 1: Smooth Scroll ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== PHASE 1: Focus Styles ===== */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid #C9A24B;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== PHASE 1: Image Lazy Load Blur-Up ===== */
+.img-blur-up {
+  filter: blur(20px);
+  transition: filter 0.5s ease-out;
+}
+.img-blur-up.loaded {
+  filter: blur(0);
+}
+
+/* ===== PHASE 1: Toast Notification ===== */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.toast-enter {
+  animation: slideInRight 0.4s ease-out;
+}
+
+/* ===== PHASE 1: Badge Pop Animation ===== */
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.badge-pop {
+  animation: badgePop 0.3s ease-out;
+}
+
+/* ============================================
+   PHASE 3 — Shop & product enhancements
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes chipIn {
+  0%   { opacity: 0; transform: scale(0.75); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tabFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* dual price-range slider — transparent track, gold thumbs */
+.qg-range {
+  pointer-events: none;
+  outline: none;
+}
+.qg-range::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: #c9a24b;
+  border: 2px solid #0d0b0a;
+  box-shadow: 0 0 0 1px rgba(201, 162, 75, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.qg-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px rgba(201, 162, 75, 0.2), 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.qg-range::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.05); }
+.qg-range::-moz-range-thumb {
+  pointer-events: auto;
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: #c9a24b;
+  border: 2px solid #0d0b0a;
+  cursor: grab;
+}
+.qg-range::-moz-range-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qg-range::-webkit-slider-thumb { transition: none; }
 }

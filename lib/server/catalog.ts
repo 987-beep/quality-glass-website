@@ -130,5 +130,34 @@ export const getAllProductImages = () =>
 export const getFrameOptions = () =>
   dbGet<FrameOption>("frame_options", "?is_active=eq.true&order=sort.asc");
 
+/**
+ * The site's visual theme (owner picks one in Owner Studio → Settings).
+ * Stored inside the `shop` setting; read server-side with the master key so it
+ * is available on first paint (no theme flash) even though anonymous browser
+ * reads of `site_settings` are restricted to the `payments`/`shop` keys.
+ */
+export async function getSiteTheme(): Promise<string> {
+  try {
+    const res = await fetch(
+      `${INSFORGE_URL}/api/database/records/site_settings?key=eq.shop&select=value`,
+      {
+        headers: {
+          apikey: INSFORGE_API_KEY,
+          authorization: `Bearer ${INSFORGE_API_KEY}`,
+        },
+        cache: "no-store",
+      }
+    );
+    if (res.ok) {
+      const rows = (await res.json()) as { value?: { theme?: unknown } }[];
+      const t = rows?.[0]?.value?.theme;
+      if (typeof t === "string") return t;
+    }
+  } catch {
+    /* fall through to the default */
+  }
+  return "gold";
+}
+
 export const priceOf = (p: Product) =>
   typeof p.base_price === "string" ? Number(p.base_price) : p.base_price;

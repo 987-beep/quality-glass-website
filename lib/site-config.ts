@@ -6,7 +6,7 @@ export const SHOP = {
   phoneDisplay: "+91 83031 08051",
   phoneHref: "tel:+918303108051",
   whatsapp:
-    "https://wa.me/918303108051?text=Hi%20Quality%20Glass!%20I%20want%20to%20frame%20a%20photo.",
+    "https://wa.me/918303108051?text=Hi%20Quality%20Framing!%20I%20want%20to%20frame%20a%20photo.",
   addressLines: [
     "Belliganj Malik Mau Road,",
     "Near Hotel Ganesh, PNT Colony,",

@@ -11,6 +11,8 @@ import ScrollFrame from "@/components/scroll-frame";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import FloatingContact from "@/components/floating-contact";
+import BackToTop from "@/components/back-to-top";
+import ToastContainer from "@/components/toast";
 import ChromeGate from "@/components/chrome-gate";
 import PwaRegister from "@/components/pwa-register";
 
@@ -89,6 +91,8 @@ export default function RootLayout({
             <ChromeGate>
               <FloatingContact />
             </ChromeGate>
+            <BackToTop />
+            <ToastContainer />
             </CartProvider>
           </AuthProvider>
         </LanguageProvider>
