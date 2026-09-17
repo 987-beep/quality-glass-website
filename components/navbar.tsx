@@ -200,6 +200,27 @@ export default function Navbar() {
                 Login
               </Link>
             )}
+            {/* wishlist + track shortcuts (PureHome pattern) */}
+            <Link
+              href="/wishlist"
+              data-cursor="link"
+              aria-label="Wishlist"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full border border-ivory/15 text-ivory/75 transition-all duration-300 hover:border-[#c2402f] hover:text-[#ff7a66] sm:flex"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" />
+              </svg>
+            </Link>
+            <Link
+              href="/track"
+              data-cursor="link"
+              aria-label="Track order"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full border border-ivory/15 text-ivory/75 transition-all duration-300 hover:border-gold hover:text-gold-light sm:flex"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M3 7h13v10H3zM16 10h3.5L22 13v4h-6M6 20a1.8 1.8 0 1 0 0-3.6A1.8 1.8 0 0 0 6 20zm12.5 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z" />
+              </svg>
+            </Link>
             <Link
               href="/cart"
               data-cursor="link"

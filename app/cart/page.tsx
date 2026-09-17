@@ -59,6 +59,9 @@ export default function CartPage() {
                         {item.options.length > 0 && (
                           <p className="mt-1 line-clamp-1 text-[11px] text-ivory/40">
                             {item.options.map((o) => o.label).join(" · ")}
+                        {item.customText && (
+                          <p className="mt-1 text-[11px] text-gold/80">📝 “{item.customText}”</p>
+                        )}
                           </p>
                         )}
                       </div>

@@ -13,7 +13,9 @@ import RecentlyViewed, { trackViewed } from "@/components/shop/recently-viewed";
 import ProductCard from "@/components/shop/product-card";
 import { primaryImage } from "@/lib/product-media";
 import { formatINR } from "@/lib/format";
-import { priceOf } from "@/lib/server/catalog";
+import { priceOf, compareOf, discountPct } from "@/lib/server/catalog";
+import OfferCoupons from "@/components/shop/offer-coupons";
+import WishlistHeart from "@/components/shop/wishlist-heart";
 import type {
   FrameOption,
   Product,
@@ -44,6 +46,7 @@ export default function ProductDetail({
   const cart = useCart();
   const router = useRouter();
   const [added, setAdded] = useState(false);
+  const [customText, setCustomText] = useState("");
   // simple (non-customizable) items like stickers: no frame options, plain image
   const simple = options.length === 0;
   const name = product.name[lang] || product.name.en || product.slug;
@@ -152,6 +155,7 @@ export default function ProductDetail({
         tone: product.frame_tone ?? "gold",
         unitPrice: unit,
         options: opts,
+        customText: customText.trim() || undefined,
       },
       qty
     );
@@ -188,6 +192,7 @@ export default function ProductDetail({
           {/* details */}
           <div>
             <div className="pd-in flex items-center gap-3">
+              <WishlistHeart slug={product.slug} className="ml-auto order-last" />
               {product.is_featured && (
                 <span className="rounded-full bg-gold px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-ink">
                   {t.shopPage.featured}
@@ -215,15 +220,31 @@ export default function ProductDetail({
             <p className="pd-in mt-4 max-w-lg text-sm leading-6 text-ivory/55 md:text-base md:leading-7">
               {desc}
             </p>
-            <p className="pd-in mt-6">
+            <p className="pd-in mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-[11px] uppercase tracking-[0.2em] text-ivory/40">
                 {t.productPage.from}
               </span>
-              <span className="ml-3 font-serif text-3xl text-gold-light md:text-4xl">
+              <span className="font-serif text-3xl text-gold-light md:text-4xl">
                 {formatINR(base)}
               </span>
+              {compareOf(product) && compareOf(product)! > base && (
+                <>
+                  <span className="text-sm text-ivory/35 line-through">
+                    {t.productPage.mrp} {formatINR(compareOf(product)!)}
+                  </span>
+                  <span className="rounded-full bg-[#c2402f] px-2.5 py-0.5 text-[10px] font-bold text-ivory">
+                    {discountPct(product)}% {t.shopPage.badgeOff}
+                  </span>
+                  <span className="text-xs font-semibold text-leaf">
+                    {t.productPage.saveYou} {formatINR(compareOf(product)! - base)}
+                  </span>
+                </>
+              )}
             </p>
             <p className="pd-in mt-1 text-[11px] text-ivory/40">{t.productPage.taxNote} · {t.productPage.includes}</p>
+            <p className="pd-in mt-2 flex items-center gap-1.5 text-[11px] text-ivory/55">
+              <span aria-hidden>📦</span> {t.productPage.deliveryLine}
+            </p>
 
             {/* options */}
             <div className="mt-9 space-y-6">
@@ -259,6 +280,23 @@ export default function ProductDetail({
                   </div>
                 </div>
               ))}
+
+              {/* name/date personalisation on the frame */}
+              {!simple && (
+                <div className="pd-in">
+                  <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+                    {t.productPage.customTextLabel}
+                  </p>
+                  <input
+                    value={customText}
+                    onChange={(e) => setCustomText(e.target.value.slice(0, 40))}
+                    placeholder={t.productPage.customTextPh}
+                    maxLength={40}
+                    data-cursor="text"
+                    className="w-full max-w-sm rounded-xl border border-ivory/15 bg-transparent px-4 py-3 text-sm text-ivory placeholder:text-ivory/25 focus:border-gold focus:outline-none"
+                  />
+                </div>
+              )}
 
               {/* qty + total */}
               <div className="pd-in flex items-center justify-between gap-4 border-t border-gold/15 pt-6">
@@ -349,6 +387,21 @@ export default function ProductDetail({
                   {t.productPage.callShop}
                 </Link>
               </div>
+
+              {/* BEST OFFERS coupon box (Santi pattern) */}
+              <div className="pd-in">
+                <OfferCoupons />
+              </div>
+
+              {/* WhatsApp design-preview promise (PrintItNice pattern) */}
+              <div className="pd-in flex items-start gap-3 rounded-xl border border-leaf/30 bg-leaf/[0.06] px-4 py-3.5">
+                <span aria-hidden className="text-lg leading-none">💬</span>
+                <div>
+                  <p className="text-xs font-bold text-leaf">{t.productPage.previewPromise}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-ivory/50">{t.productPage.previewBody}</p>
+                </div>
+              </div>
+              <p className="pd-in text-[11px] text-ivory/40">🎁 {t.productPage.giftWrapNote}</p>
 
               {/* info accordions */}
               <div className="pd-in mt-2 space-y-3">

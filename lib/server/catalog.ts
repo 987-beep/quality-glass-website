@@ -20,10 +20,18 @@ export type Product = {
   name: Localized;
   description: Localized;
   base_price: string | number;
+  compare_at_price?: string | number | null;
   category_id: string | null;
   frame_tone: string | null;
+  material?: string | null;
   is_featured: boolean;
   is_active: boolean;
+  is_deal?: boolean;
+  is_bundle?: boolean;
+  bundle_count?: number | null;
+  rating_avg?: string | number | null;
+  rating_count?: number | null;
+  created_at?: string;
 };
 
 export type ProductImage = {
@@ -89,7 +97,7 @@ export const getReviewStats = async (): Promise<ReviewStats> => {
 };
 
 export const getFeaturedProducts = async (limit = 8) => {
-  const select = "select=id,slug,name,description,base_price,category_id,frame_tone,is_featured";
+  const select = "select=id,slug,name,description,base_price,compare_at_price,category_id,frame_tone,material,is_featured,is_deal,is_bundle,bundle_count,rating_avg,rating_count,created_at";
   const featured = await dbGet<Product>(
     "products",
     `?is_active=eq.true&is_featured=eq.true&${select}&order=created_at.asc&limit=${limit}`
@@ -109,7 +117,19 @@ export const getCategories = () =>
 export const getProducts = () =>
   dbGet<Product>(
     "products",
-    "?is_active=eq.true&select=id,slug,name,description,base_price,category_id,frame_tone,is_featured"
+    "?is_active=eq.true&select=id,slug,name,description,base_price,compare_at_price,category_id,frame_tone,material,is_featured,is_deal,is_bundle,bundle_count,rating_avg,rating_count,created_at"
+  );
+
+export const getDealProducts = () =>
+  dbGet<Product>(
+    "products",
+    `?is_active=eq.true&is_deal=eq.true&select=id,slug,name,description,base_price,compare_at_price,category_id,frame_tone,material,is_featured,is_deal,is_bundle,bundle_count,rating_avg,rating_count,created_at&order=updated_at.asc`
+  );
+
+export const getBundles = () =>
+  dbGet<Product>(
+    "products",
+    `?is_active=eq.true&is_bundle=eq.true&select=id,slug,name,description,base_price,compare_at_price,category_id,frame_tone,material,is_featured,is_deal,is_bundle,bundle_count,rating_avg,rating_count,created_at&order=created_at.asc`
   );
 
 export const getProductBySlug = async (slug: string) =>
@@ -161,3 +181,21 @@ export async function getSiteTheme(): Promise<string> {
 
 export const priceOf = (p: Product) =>
   typeof p.base_price === "string" ? Number(p.base_price) : p.base_price;
+
+export const compareOf = (p: Product): number | null =>
+  p.compare_at_price == null
+    ? null
+    : typeof p.compare_at_price === "string"
+      ? Number(p.compare_at_price)
+      : p.compare_at_price;
+
+/** % off vs MRP, 0 when no compare price. */
+export const discountPct = (p: Product): number => {
+  const mrp = compareOf(p);
+  if (!mrp || mrp <= 0) return 0;
+  return Math.max(0, Math.round(((mrp - priceOf(p)) / mrp) * 100));
+};
+
+/** true when listed within the last 14 days -> NEW badge. */
+export const isNewProduct = (p: Product): boolean =>
+  !!p.created_at && Date.now() - new Date(p.created_at).getTime() < 14 * 86400000;

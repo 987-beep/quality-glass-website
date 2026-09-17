@@ -5,7 +5,7 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { formatINR } from "@/lib/format";
 import type { Category } from "@/lib/server/catalog";
 
-export type SortKey = "featured" | "price-asc" | "price-desc" | "name-asc" | "newest";
+export type SortKey = "featured" | "discount" | "price-asc" | "price-desc" | "name-asc" | "newest" | "rating";
 
 const COPY = {
   en: {
@@ -21,6 +21,8 @@ const COPY = {
     noSuggest: "No matches",
     sorts: {
       featured: "Featured first",
+      discount: "Better Discount",
+      rating: "Customer Rating",
       "price-asc": "Price: Low to High",
       "price-desc": "Price: High to Low",
       "name-asc": "Name: A–Z",
@@ -40,6 +42,8 @@ const COPY = {
     noSuggest: "कुछ नहीं मिला",
     sorts: {
       featured: "फ़ीचर्ड पहले",
+      discount: "बेहतर छूट",
+      rating: "ग्राहक रेटिंग",
       "price-asc": "मूल्य: कम से ज़्यादा",
       "price-desc": "मूल्य: ज़्यादा से कम",
       "name-asc": "नाम: A–Z",
@@ -185,7 +189,7 @@ export function SortSelect({ value, onChange }: { value: SortKey; onChange: (v: 
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const keys: SortKey[] = ["featured", "price-asc", "price-desc", "name-asc", "newest"];
+  const keys: SortKey[] = ["featured", "discount", "rating", "price-asc", "price-desc", "name-asc", "newest"];
 
   return (
     <div ref={ref} className="relative shrink-0">

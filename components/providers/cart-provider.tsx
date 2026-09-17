@@ -20,6 +20,7 @@ export type CartItem = {
   tone: string;
   unitPrice: number;
   options: CartOption[];
+  customText?: string; // name/date printed on the frame
   qty: number;
 };
 
@@ -73,7 +74,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const key =
         item.slug +
         "::" +
-        item.options.map((o) => `${o.kind}=${o.key}`).join("|");
+        item.options.map((o) => `${o.kind}=${o.key}`).join("|") +
+        "::" +
+        (item.customText ?? "");
       setItems((prev) => {
         const found = prev.find((i) => i.key === key);
         if (found) {

@@ -45,6 +45,7 @@ function CheckoutInner() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [delivery, setDelivery] = useState<"pickup" | "local_delivery">("pickup");
+  const [giftWrap, setGiftWrap] = useState(false);
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
 
@@ -55,7 +56,7 @@ function CheckoutInner() {
 
   // listing #3: offer code state
   const [couponInput, setCouponInput] = useState("");
-  const [coupon, setCoupon] = useState<{ code: string; percent_off: number } | null>(null);
+  const [coupon, setCoupon] = useState<{ code: string; percent_off: number; amount_off?: number | null } | null>(null);
   const [couponErr, setCouponErr] = useState("");
   const [couponBusy, setCouponBusy] = useState(false);
 
@@ -116,8 +117,13 @@ function CheckoutInner() {
 
   const subtotal = cart.subtotal;
   // listing #3: discount lives at order level — items keep real prices (price guard untouched)
-  const discountAmt = coupon ? Math.round((subtotal * coupon.percent_off) / 100) : 0;
-  const discounted = Math.max(0, subtotal - discountAmt);
+  const discountAmt = coupon
+    ? coupon.amount_off
+      ? Math.min(Number(coupon.amount_off), subtotal)
+      : Math.round((subtotal * coupon.percent_off) / 100)
+    : 0;
+  const GIFT_FEE = 30;
+  const discounted = Math.max(0, subtotal - discountAmt) + (giftWrap ? GIFT_FEE : 0);
   const placeTotal = resumeOrderId || order ? order?.total_amount ?? discounted : discounted;
 
   // listing #3: validate a typed offer code against the public coupons table
@@ -127,14 +133,14 @@ function CheckoutInner() {
     setCouponBusy(true); setCouponErr("");
     try {
       const { data, error } = await getInsforge().database
-        .from("coupons").select("code, percent_off, min_order").eq("code", code).eq("is_active", true);
+        .from("coupons").select("code, percent_off, amount_off, min_order").eq("code", code).eq("is_active", true);
       if (error) throw new Error(errMsg(error));
-      const row = (Array.isArray(data) ? data[0] : data) as { code?: string; percent_off?: number; min_order?: number | string } | undefined;
+      const row = (Array.isArray(data) ? data[0] : data) as { code?: string; percent_off?: number; amount_off?: number | string | null; min_order?: number | string } | undefined;
       if (!row?.code) throw new Error("That code isn't valid. · यह कोड मान्य नहीं है");
       if (Number(row.min_order || 0) > subtotal) {
         throw new Error(`This code needs a minimum order of ₹${Number(row.min_order).toLocaleString("en-IN")}. · न्यूनतम ऑर्डर ₹${Number(row.min_order).toLocaleString("en-IN")} चाहिए`);
       }
-      setCoupon({ code: row.code, percent_off: Number(row.percent_off) });
+      setCoupon({ code: row.code, percent_off: Number(row.percent_off), amount_off: row.amount_off ? Number(row.amount_off) : null });
       setCouponInput("");
     } catch (e) { setCouponErr(errMsg(e)); }
     finally { setCouponBusy(false); }
@@ -179,6 +185,7 @@ function CheckoutInner() {
           delivery_method: delivery,
           delivery_address: delivery === "local_delivery" ? address.trim() || null : null,
           customer_note: note.trim() || null,
+          gift_wrap: giftWrap,
         },
       ]);
       if (oe) throw new Error(errMsg(oe));
@@ -198,6 +205,7 @@ function CheckoutInner() {
         qty: i.qty,
         unit_price: i.unitPrice,
         line_total: i.unitPrice * i.qty,
+        custom_text: i.customText ?? null,
       }));
       const { error: ie } = await db.from("order_items").insert(itemsPayload);
       if (ie) throw new Error(errMsg(ie));
@@ -218,7 +226,7 @@ function CheckoutInner() {
     } finally {
       setBusy(false);
     }
-  }, [name, phone, address, note, delivery, cart, subtotal, discounted, discountAmt, coupon, auth.user, t]);
+  }, [name, phone, address, note, delivery, giftWrap, cart, subtotal, discounted, discountAmt, coupon, auth.user, t]);
 
   const submitProof = useCallback(async () => {
     if (!order) return;
@@ -272,7 +280,7 @@ function CheckoutInner() {
       name: i.name,
       qty: i.qty,
       total: i.unitPrice * i.qty,
-      opt: i.options.map((o) => o.label).join(" · "),
+      opt: i.options.map((o) => o.label).join(" · ") + (i.customText ? ` · “${i.customText}”` : ""),
     }));
   }, [step, orderItems, cart.items]);
 
@@ -627,7 +635,19 @@ function CheckoutInner() {
             {/* listing #3: offer code — apply before placing / paying */}
             {!resumeOrderId && step !== "payment" && (
               <div className="mt-5 border-t border-gold/15 pt-4">
-                {coupon ? (
+                {/* gift wrap toggle (+₹30) */}
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-ivory/10 bg-white/[0.02] px-4 py-3.5 text-sm text-ivory/75 transition-colors hover:border-gold/40">
+                <input
+                  type="checkbox"
+                  checked={giftWrap}
+                  onChange={(e) => setGiftWrap(e.target.checked)}
+                  className="h-4 w-4 accent-[#c9a24b]"
+                />
+                <span className="flex-1">🎁 Gift wrap (ribbon + kraft + note card) · गिफ्ट रैपिंग</span>
+                <span className="font-semibold text-gold-light">+₹30</span>
+              </label>
+
+              {coupon ? (
                   <div className="flex items-center justify-between rounded-xl border border-leaf/40 bg-leaf/[0.08] px-4 py-3">
                     <p className="text-xs font-bold text-leaf">
                       {coupon.code} · {coupon.percent_off}% off ✓

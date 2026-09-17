@@ -17,7 +17,7 @@ import {
   type SortKey,
 } from "@/components/shop/shop-filters";
 import { primaryImage } from "@/lib/product-media";
-import { priceOf } from "@/lib/server/catalog";
+import { priceOf, compareOf, discountPct } from "@/lib/server/catalog";
 import { formatINR } from "@/lib/format";
 import { SHOP } from "@/lib/site-config";
 import type { Category, Product, ProductImage } from "@/lib/server/catalog";
@@ -46,6 +46,7 @@ export default function ShopClient({
   }, [products]);
 
   const [cat, setCat] = useState(initialCategory);
+  const [mat, setMat] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("featured");
   const [range, setRange] = useState<[number, number]>([floor, ceil]);
@@ -91,6 +92,7 @@ export default function ShopClient({
     const q = query.trim().toLowerCase();
     let out = products.filter((p) => {
       if (cat !== "all" && catSlugOf.get(p.id) !== cat) return false;
+      if (mat !== "all" && (p.material ?? "wood") !== mat) return false;
       const price = priceOf(p);
       if (price < range[0] || price > range[1]) return false;
       if (q) {
@@ -102,6 +104,8 @@ export default function ShopClient({
 
     out = [...out].sort((a, b) => {
       switch (sort) {
+        case "discount": return discountPct(b) - discountPct(a);
+        case "rating": return Number(b.rating_avg ?? 0) - Number(a.rating_avg ?? 0);
         case "price-asc": return priceOf(a) - priceOf(b);
         case "price-desc": return priceOf(b) - priceOf(a);
         case "name-asc": return String(nameOf(a)).localeCompare(String(nameOf(b)));
@@ -110,7 +114,7 @@ export default function ShopClient({
       }
     });
     return out;
-  }, [products, cat, query, range, sort, catSlugOf, lang]);
+  }, [products, cat, mat, query, range, sort, catSlugOf, lang]);
 
   // autocomplete
   const suggestions = useMemo(() => {
@@ -132,11 +136,12 @@ export default function ShopClient({
       clear: () => setCat("all"),
     });
   }
+  if (mat !== "all") chips.push({ key: "mat", label: mat[0].toUpperCase() + mat.slice(1), clear: () => setMat("all") });
   if (query.trim()) chips.push({ key: "q", label: `"${query.trim()}"`, clear: () => setQuery("") });
   if (range[0] !== floor || range[1] !== ceil)
     chips.push({ key: "price", label: `${formatINR(range[0])} – ${formatINR(range[1])}`, clear: () => setRange([floor, ceil]) });
 
-  const clearAll = () => { setCat("all"); setQuery(""); setRange([floor, ceil]); setSort("featured"); };
+  const clearAll = () => { setCat("all"); setMat("all"); setQuery(""); setRange([floor, ceil]); setSort("featured"); };
 
   const ref = useGsap(() => {}, []);
   const gridRef = useGsap((el, q) => {
@@ -208,10 +213,29 @@ export default function ShopClient({
           <SearchBar value={query} onChange={setQuery} suggestions={suggestions} onPick={(l) => { setQuery(l); pushRecentSearch(l); }} />
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden text-[10px] uppercase tracking-[0.22em] text-ivory/35 sm:inline">
-              {filtered.length} {t.shopPage.pieces}
+              {filtered.length} {t.shopPage.itemsFound}
             </span>
             <SortSelect value={sort} onChange={setSort} />
           </div>
+        </div>
+
+        {/* material quick-filter (PrintItNice/PureHome facet pattern) */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">{t.shopPage.materialLabel}</span>
+          {["all", "wood", "acrylic", "glass"].map((mk) => (
+            <button
+              key={mk}
+              onClick={() => setMat(mk)}
+              data-cursor="link"
+              className={`rounded-full border px-4 py-1.5 text-[11px] font-semibold transition-all ${
+                mat === mk
+                  ? "border-gold bg-gold text-ink"
+                  : "border-ivory/15 text-ivory/55 hover:border-gold/50 hover:text-gold-light"
+              }`}
+            >
+              {mk === "all" ? c.all : mk[0].toUpperCase() + mk.slice(1)}
+            </button>
+          ))}
         </div>
 
         {/* chips */}

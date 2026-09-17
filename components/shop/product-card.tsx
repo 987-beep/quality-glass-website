@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/server/catalog";
-import { priceOf } from "@/lib/server/catalog";
+import { priceOf, compareOf, discountPct, isNewProduct } from "@/lib/server/catalog";
 import { formatINR } from "@/lib/format";
 import { useLanguage } from "@/components/providers/language-provider";
 
@@ -56,6 +56,16 @@ export default function ProductCard({
 
         {/* badges */}
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
+          {discountPct(product) > 0 && (
+            <span className="rounded-full bg-[#c2402f] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-ivory shadow">
+              {discountPct(product)}% {t.shopPage.badgeOff}
+            </span>
+          )}
+          {isNewProduct(product) && (
+            <span className="rounded-full bg-leaf px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-ink">
+              {t.shopPage.badgeNew}
+            </span>
+          )}
           {product.is_featured && (
             <span className="rounded-full bg-gold px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-ink shadow-glowgold">
               {t.shopPage.featured}
@@ -70,10 +80,24 @@ export default function ProductCard({
             {name}
           </h3>
           <p className="mt-1 line-clamp-1 text-xs text-ivory/45">{desc}</p>
+          {Number(product.rating_avg ?? 0) > 0 && (
+            <p className="mt-1 flex items-center gap-1 text-[10px] text-ivory/40">
+              <span className="text-gold-light">★</span>
+              {Number(product.rating_avg).toFixed(1)}
+              <span className="text-ivory/25">({product.rating_count ?? 0})</span>
+            </p>
+          )}
         </div>
-        <p className="shrink-0 font-serif text-lg text-gold-light">
-          {formatINR(priceOf(product))}
-        </p>
+        <div className="shrink-0 text-right">
+          <p className="font-serif text-lg text-gold-light">
+            {formatINR(priceOf(product))}
+          </p>
+          {compareOf(product) && compareOf(product)! > priceOf(product) && (
+            <p className="text-[11px] text-ivory/35 line-through">
+              {formatINR(compareOf(product)!)}
+            </p>
+          )}
+        </div>
       </div>
     </Link>
   );
