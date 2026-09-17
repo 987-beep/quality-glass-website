@@ -208,7 +208,7 @@ export default function ProductDetail({
             {/* listing #9: star aggregate from approved photo reviews */}
             {reviewStats && reviewStats.count > 0 && (
               <p className="pd-in mt-3 flex items-center gap-2.5">
-                <span className="text-sm tracking-[0.14em] text-gold-light" aria-label={`${reviewStats.avg} out of 5 stars`}>
+                <span className="text-sm tracking-[0.14em] text-star" aria-label={`${reviewStats.avg} out of 5 stars`}>
                   {"★".repeat(Math.round(reviewStats.avg))}
                   <span className="text-ivory/20">{"★".repeat(5 - Math.round(reviewStats.avg))}</span>
                 </span>

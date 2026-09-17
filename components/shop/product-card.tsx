@@ -82,7 +82,7 @@ export default function ProductCard({
           <p className="mt-1 line-clamp-1 text-xs text-ivory/45">{desc}</p>
           {Number(product.rating_avg ?? 0) > 0 && (
             <p className="mt-1 flex items-center gap-1 text-[10px] text-ivory/40">
-              <span className="text-gold-light">★</span>
+              <span className="text-star">★</span>
               {Number(product.rating_avg).toFixed(1)}
               <span className="text-ivory/25">({product.rating_count ?? 0})</span>
             </p>

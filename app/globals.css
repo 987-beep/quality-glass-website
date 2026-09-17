@@ -4,15 +4,25 @@
 
 :root {
   --mq-skew: 0deg;
-  /* ── site accent (default = Luxe Gold) ───────────────────────── */
-  --c-gold: 201 162 75;
-  --c-gold-light: 232 207 143;
-  --c-gold-dark: 160 124 44;
-  --c-gold-deep: 107 78 20;
-  --glow: 201 162 75;
+  /* ── site accent: Santi Sharee combo (maroon brand + teal stars, dark-tuned) ──
+     source palette (extracted CSS): --brand #7b1e26, --brand-d #5c141b,
+     --star #14958f, --gold #b98a2f, --ink #282c3f */
+  --c-gold: 214 63 63;        /* #D63F3F — #7b1e26 lifted for dark-ink contrast */
+  --c-gold-light: 244 154 156;/* tint of brand */
+  --c-gold-dark: 123 30 38;   /* #7b1e26 Santi brand, exact */
+  --c-gold-deep: 92 20 27;    /* #5c141b Santi brand-d, exact */
+  --glow: 214 63 63;
+  --c-star: 20 149 143;       /* #14958f Santi rating-star teal */
 }
 
 /* ── premium themes (set via <html data-theme="…">) ─────────────── */
+[data-theme="santi-maroon"] {
+  --c-gold: 214 63 63;        /* Santi #7b1e26 lifted for dark-ink readability */
+  --c-gold-light: 244 154 156;
+  --c-gold-dark: 123 30 38;   /* #7b1e26 exact Santi brand */
+  --c-gold-deep: 92 20 27;    /* #5c141b exact Santi brand-d */
+  --glow: 214 63 63;
+}
 [data-theme="emerald"] {
   --c-gold: 38 168 119;
   --c-gold-light: 111 216 175;
@@ -92,6 +102,9 @@
 /* micro-interactions (2026: motion with purpose) */
 .press { transition: transform 160ms cubic-bezier(0.34,1.56,0.64,1); }
 .press:active { transform: scale(0.96); }
+
+/* Santi signature: teal rating stars */
+.text-star { color: rgb(var(--c-star)); }
 
 /* missing utility: the cream passe-partout (mat) inside a frame */
 .bg-mat {

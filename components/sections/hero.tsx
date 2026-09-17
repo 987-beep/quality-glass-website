@@ -218,7 +218,7 @@ export default function Hero({
 
           {/* social-proof pill in the design layer (2026 rule: proof above the fold) */}
           <div className="h-note surface-card mt-8 inline-flex items-center gap-3 rounded-full px-5 py-3">
-            <span className="flex items-center gap-1.5 text-sm font-bold text-gold-light">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-star">
               <span aria-hidden>★</span>
               {stats && stats.count > 0 ? stats.avg.toFixed(1) : "4.9"}
             </span>
