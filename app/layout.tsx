@@ -15,6 +15,10 @@ import BackToTop from "@/components/back-to-top";
 import ToastContainer from "@/components/toast";
 import ChromeGate from "@/components/chrome-gate";
 import PwaRegister from "@/components/pwa-register";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { getSiteTheme } from "@/lib/server/catalog";
+import { safeTheme, type ThemeId } from "@/lib/theme";
+import { DEFAULT_THEME } from "@/lib/theme";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -50,13 +54,25 @@ export const viewport: Viewport = {
   themeColor: "#0C0A06",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // no-flash theme: read the owner-picked accent server-side, stamp it on <html>
+  let initialTheme: ThemeId = DEFAULT_THEME;
+  try {
+    initialTheme = safeTheme(await getSiteTheme());
+  } catch {
+    /* default */
+  }
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable} ${hindi.variable}`}>
+    <html
+      lang="en"
+      data-theme={initialTheme}
+      suppressHydrationWarning
+      className={`${serif.variable} ${sans.variable} ${hindi.variable}`}
+    >
       <body className="grain bg-ink font-sans text-ivory">
         <script
           type="application/ld+json"
@@ -70,6 +86,7 @@ export default function RootLayout({
             }),
           }}
         />
+        <ThemeProvider initial={initialTheme}>
         <LanguageProvider>
           <AuthProvider>
             <CartProvider>
@@ -96,6 +113,7 @@ export default function RootLayout({
             </CartProvider>
           </AuthProvider>
         </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
