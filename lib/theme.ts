@@ -9,6 +9,7 @@
  */
 
 export type ThemeId =
+  | "gold"
   | "santi-maroon"
   | "emerald"
   | "rose"
@@ -31,6 +32,14 @@ export type Theme = {
 };
 
 export const THEMES: Theme[] = [
+  {
+    id: "gold",
+    name: "Luxe Gold",
+    hindi: "सुनहरा लक्ज़री",
+    tagline: "The classic Quality Glass look",
+    swatch: "#C9A24B",
+    swatchLight: "#E8CF8F",
+  },
   {
     id: "santi-maroon",
     name: "Santi Maroon",
@@ -107,7 +116,7 @@ export const THEMES: Theme[] = [
 
 export const THEME_IDS = new Set<string>(THEMES.map((t) => t.id));
 
-export const DEFAULT_THEME: ThemeId = "santi-maroon";
+export const DEFAULT_THEME: ThemeId = "gold";
 
 /** Sanitise any incoming value so we never apply an unknown theme. */
 export function safeTheme(id: unknown): ThemeId {

@@ -4,15 +4,13 @@
 
 :root {
   --mq-skew: 0deg;
-  /* ── site accent: Santi Sharee combo (maroon brand + teal stars, dark-tuned) ──
-     source palette (extracted CSS): --brand #7b1e26, --brand-d #5c141b,
-     --star #14958f, --gold #b98a2f, --ink #282c3f */
-  --c-gold: 214 63 63;        /* #D63F3F — #7b1e26 lifted for dark-ink contrast */
-  --c-gold-light: 244 154 156;/* tint of brand */
-  --c-gold-dark: 123 30 38;   /* #7b1e26 Santi brand, exact */
-  --c-gold-deep: 92 20 27;    /* #5c141b Santi brand-d, exact */
-  --glow: 214 63 63;
-  --c-star: 20 149 143;       /* #14958f Santi rating-star teal */
+  /* ── site accent (default = Luxe Gold) ───────────────────────── */
+  --c-gold: 201 162 75;
+  --c-gold-light: 232 207 143;
+  --c-gold-dark: 160 124 44;
+  --c-gold-deep: 107 78 20;
+  --glow: 201 162 75;
+  --c-star: 232 207 143;      /* restored: stars follow the gold accent */
 }
 
 /* ── premium themes (set via <html data-theme="…">) ─────────────── */
@@ -124,7 +122,7 @@ body {
 }
 
 ::selection {
-  background: #D63F3F;
+  background: #c9a24b;
   color: #0c0a06;
 }
 
@@ -310,7 +308,7 @@ html {
 
 /* ===== PHASE 1: Focus Styles ===== */
 a:focus-visible, button:focus-visible {
-  outline: 2px solid #D63F3F;
+  outline: 2px solid #C9A24B;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -396,7 +394,7 @@ a:focus-visible, button:focus-visible {
   height: 18px;
   width: 18px;
   border-radius: 9999px;
-  background: #D63F3F;
+  background: #c9a24b;
   border: 2px solid #0d0b0a;
   box-shadow: 0 0 0 1px rgba(201, 162, 75, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
   cursor: grab;
@@ -412,7 +410,7 @@ a:focus-visible, button:focus-visible {
   height: 16px;
   width: 16px;
   border-radius: 9999px;
-  background: #D63F3F;
+  background: #c9a24b;
   border: 2px solid #0d0b0a;
   cursor: grab;
 }

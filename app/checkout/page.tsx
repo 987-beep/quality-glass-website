@@ -641,7 +641,7 @@ function CheckoutInner() {
                   type="checkbox"
                   checked={giftWrap}
                   onChange={(e) => setGiftWrap(e.target.checked)}
-                  className="h-4 w-4 accent-[#D63F3F]"
+                  className="h-4 w-4 accent-[#c9a24b]"
                 />
                 <span className="flex-1">🎁 Gift wrap (ribbon + kraft + note card) · गिफ्ट रैपिंग</span>
                 <span className="font-semibold text-gold-light">+₹30</span>
