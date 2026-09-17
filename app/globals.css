@@ -49,12 +49,26 @@
   --glow: 217 138 58;
 }
 
-[data-theme="imperial-plum"] {
-  --c-gold: 214 60 167;      /* #D63CA7 vibrant plum-pink (Frameley plum tuned for dark ink) */
-  --c-gold-light: 243 154 219;
-  --c-gold-dark: 160 24 120;
-  --c-gold-deep: 107 11 80;
-  --glow: 214 60 167;
+[data-theme="crimson"] {
+  --c-gold: 229 72 77;       /* #E5484D imperial crimson (dark-tuned; harmonises with gold frames) */
+  --c-gold-light: 255 138 143;
+  --c-gold-dark: 185 28 28;  /* #B91C1C */
+  --c-gold-deep: 127 29 29;  /* #7F1D1D */
+  --glow: 229 72 77;
+}
+[data-theme="maroon"] {
+  --c-gold: 212 69 87;       /* #D44557 royal maroon-wine */
+  --c-gold-light: 245 155 170;
+  --c-gold-dark: 159 18 60;  /* #9F1239 rose-800 */
+  --c-gold-deep: 96 12 43;
+  --glow: 212 69 87;
+}
+[data-theme="vermilion"] {
+  --c-gold: 255 90 31;       /* #FF5A1F vermilion fire (PureHome #ff4e00 tuned for dark) */
+  --c-gold-light: 255 177 152;
+  --c-gold-dark: 194 65 12;  /* #C2410C */
+  --c-gold-deep: 124 45 18;  /* #7C2D12 */
+  --glow: 255 90 31;
 }
 
 /* ── editorial surface elevation steps (Linear/Vercel layered pattern) ── */

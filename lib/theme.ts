@@ -15,7 +15,9 @@ export type ThemeId =
   | "sapphire"
   | "platinum"
   | "amber"
-  | "imperial-plum";
+  | "crimson"
+  | "maroon"
+  | "vermilion";
 
 export type Theme = {
   id: ThemeId;
@@ -70,12 +72,28 @@ export const THEMES: Theme[] = [
     swatchLight: "#E7E9F0",
   },
   {
-    id: "imperial-plum",
-    name: "Imperial Plum",
-    hindi: "शाही जामुन",
-    tagline: "Bold festive magenta (2026 trend pick)",
-    swatch: "#D63CA7",
-    swatchLight: "#F39ADB",
+    id: "crimson",
+    name: "Imperial Crimson",
+    hindi: "सिंदूरी लाल",
+    tagline: "Classic deep red — shagun, sindoor, auspicious",
+    swatch: "#E5484D",
+    swatchLight: "#FF8A8F",
+  },
+  {
+    id: "maroon",
+    name: "Royal Maroon",
+    hindi: "शाही मैरून",
+    tagline: "Rich wine red — wedding-card regal",
+    swatch: "#D44557",
+    swatchLight: "#F59BAA",
+  },
+  {
+    id: "vermilion",
+    name: "Vermilion Fire",
+    hindi: "अग्नि लाल",
+    tagline: "Hot sale energy — Printo/PureHome style",
+    swatch: "#FF5A1F",
+    swatchLight: "#FFB198",
   },
   {
     id: "amber",
