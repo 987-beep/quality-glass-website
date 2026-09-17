@@ -82,10 +82,13 @@ export default function Featured({
               <a
                 key={p.id}
                 href={`/product/${p.slug}`}
-                className="fcard group"
+                className="fcard group press"
                 data-cursor="view"
                 data-cursor-label="View"
               >
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.3em] text-gold/50">
+                  № {String(products.indexOf(p) + 1).padStart(2, "0")}
+                </span>
                 <FramedImage
                   src={img.src}
                   alt={img.alt}

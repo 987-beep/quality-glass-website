@@ -55,6 +55,29 @@ const TABS = [
   { id: "settings", label: "Settings", hi: "सेटिंग" },
 ] as const;
 
+
+/* Studio OS grouping (Linear/Vercel pattern): 11 tabs → 4 sections */
+const NAV_GROUPS: { name: string; tabs: (typeof TABS)[number]["id"][] }[] = [
+  { name: "Sell", tabs: ["overview", "orders", "bookings", "stock"] },
+  { name: "Catalog", tabs: ["products", "wholesale"] },
+  { name: "Grow", tabs: ["promos", "reviews", "loyalty"] },
+  { name: "System", tabs: ["analytics", "settings"] },
+];
+
+const TAB_ICON: Record<(typeof TABS)[number]["id"], string> = {
+  overview: "M3 13h4v8H3zM10 9h4v12h-4zM17 5h4v16h-4z",
+  orders: "M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6",
+  bookings: "M5 5h14v16H5zM5 9h14M8 3v4M16 3v4",
+  stock: "M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9m0-9L4 7.5",
+  products: "M4 5h16v11H4zM4 5l2-2h12l2 2",
+  wholesale: "M7 7h.01M3 3h7l9 9-7 7-9-9z",
+  promos: "M4 9h13l3 3-3 3H4zM9 9v6",
+  reviews: "M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9L6.6 19.6l1.1-6L3.2 9.4l6.1-.8z",
+  loyalty: "M12 21s-7.5-4.9-9.8-9.1C.6 8.6 2.3 5 5.7 5c2 0 3.4 1 4.3 2.3h4c.9-1.3 2.3-2.3 4.3-2.3 3.4 0 5.1 3.6 3.5 6.9C19.5 16.1 12 21 12 21z",
+  analytics: "M4 19V5m0 14h16M8 15l3-4 3 2 4-6",
+  settings: "M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm8 3l-1.8 1.5.2 2.4-2.3.5-1 2.2h-2.6l-1-2.2-2.3-.5.2-2.4L7.6 12l1.8-1.5-.2-2.4 2.3-.5 1-2.2h3l1 2.2 2.3.5-.2 2.4z",
+};
+
 function Splash({ text }: { text: string }) {
   return (
     <main className="flex min-h-[100svh] flex-col items-center justify-center gap-5 px-6 text-center">
@@ -76,6 +99,7 @@ export default function AdminPage() {
     }
     return "overview";
   });
+  const [more, setMore] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<OrderRow[]>([]);
   const [statsWarn, setStatsWarn] = useState(false);
@@ -169,13 +193,71 @@ export default function AdminPage() {
     { label: "Revenue collected (₹)", value: stats?.revenue ?? 0, accent: false, money: true },
   ];
 
+  const go = (id: (typeof TABS)[number]["id"]) => { setTab(id); setMore(false); window.scrollTo({ top: 0 }); };
+
   return (
-    <main ref={ref} className="min-h-[100svh] pb-24 pt-10 md:pt-14">
-      <div className="mx-auto max-w-[1240px] px-5 md:px-10">
-        {/* top bar */}
+    <main ref={ref} className="min-h-[100svh] bg-[#0F1114] pb-28 pt-10 md:pt-14 lg:pb-10 lg:pt-0">
+      <div className="mx-auto max-w-[1560px] lg:grid lg:grid-cols-[236px_minmax(0,1fr)]">
+
+        {/* ═══ Studio OS sidebar (desktop) ═══ */}
+        <aside className="sticky top-0 hidden h-[100svh] flex-col border-r border-ivory/[0.07] bg-[#0F1114] px-5 py-8 lg:flex">
+          <div className="px-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold">Owner Studio</p>
+            <p className="mt-1.5 flex items-center gap-2 text-xs text-ivory/45">
+              <span className="h-1.5 w-1.5 rounded-full bg-leaf" /> Store live · स्टोर चालू
+            </p>
+          </div>
+          <nav className="mt-8 flex flex-1 flex-col gap-6 overflow-y-auto">
+            {NAV_GROUPS.map((g) => (
+              <div key={g.name}>
+                <p className="px-2 text-[9px] font-bold uppercase tracking-[0.28em] text-ivory/28">{g.name}</p>
+                <div className="mt-2 flex flex-col gap-0.5">
+                  {g.tabs.map((id) => {
+                    const t = TABS.find((x) => x.id === id)!;
+                    const active = tab === id;
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => go(id)}
+                        data-cursor="link"
+                        className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition-all ${
+                          active
+                            ? "bg-gold/[0.12] text-gold-light"
+                            : "text-ivory/60 hover:bg-ivory/[0.04] hover:text-ivory"
+                        }`}
+                      >
+                        <svg viewBox="0 0 24 24" className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "text-ivory/35 group-hover:text-ivory/60"}`} fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <path d={TAB_ICON[id]} />
+                        </svg>
+                        <span className="flex-1">{t.label}</span>
+                        <span className="text-[9px] opacity-50">{t.hi}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+          <div className="mt-6 space-y-1 border-t border-ivory/[0.07] pt-4">
+            <Link href="/" data-cursor="link"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-ivory/55 transition-colors hover:text-gold-light">
+              <svg viewBox="0 0 24 24"className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5m6-7l-7 7 7 7" /></svg>
+              Back to website
+            </Link>
+            <button onClick={auth.signOut} data-cursor="link"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium text-ivory/55 transition-colors hover:text-red-300">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+              Sign out
+            </button>
+          </div>
+        </aside>
+
+        {/* ═══ content column ═══ */}
+        <div className="px-5 md:px-10 lg:px-12 lg:py-10">
+        {/* top bar (actions stay on every screen) */}
         <div className="ad-in flex flex-wrap items-center justify-between gap-4">
           <Link href="/" data-cursor="link"
-            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/45 transition-colors hover:text-gold-light">
+            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/45 transition-colors hover:text-gold-light lg:hidden">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5m6-7l-7 7 7 7" />
             </svg>
@@ -196,7 +278,7 @@ export default function AdminPage() {
               {(auth.profile?.full_name || auth.user.email || "O")[0].toUpperCase()}
             </span>
             <button onClick={auth.signOut} data-cursor="link"
-              className="rounded-full border border-ivory/15 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ivory/70 transition-colors hover:border-gold hover:text-gold-light">
+              className="rounded-full border border-ivory/15 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ivory/70 transition-colors hover:border-gold hover:text-gold-light lg:hidden">
               Sign out
             </button>
           </div>
@@ -229,27 +311,13 @@ export default function AdminPage() {
         <div className="ad-in mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {cards.map((c) => (
             <button key={c.label}
-              onClick={() => setTab(c.label.startsWith("Payments") ? "orders" : c.label.startsWith("Live") ? "products" : "orders")}
+              onClick={() => go(c.label.startsWith("Payments") ? "orders" : c.label.startsWith("Live") ? "products" : "orders")}
               data-cursor="link"
-              className={`rounded-2xl border p-5 text-left transition-colors md:p-6 ${
-                c.accent ? "border-gold/45 bg-gold/[0.08] hover:bg-gold/[0.12]" : "border-ivory/10 bg-white/[0.03] hover:border-gold/30"
+              className={`surface-card press rounded-2xl p-5 text-left transition-colors md:p-6 ${
+                c.accent ? "!border-gold/45 bg-gold/[0.06]" : ""
               }`}>
-              <Counter value={c.value} className={`font-serif text-3xl md:text-4xl ${c.accent ? "text-gold" : "text-gold-light"}`} />
-              <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-ivory/45">{c.label}</p>
-            </button>
-          ))}
-        </div>
-
-        {/* tabs */}
-        <div className="ad-in mt-12 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} data-cursor="link"
-              className={`shrink-0 rounded-full border px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                tab === t.id
-                  ? "border-gold bg-gold/15 text-gold-light"
-                  : "border-ivory/15 text-ivory/55 hover:border-gold/40 hover:text-ivory"
-              }`}>
-              {t.label} <span className="text-[9px] opacity-60">{t.hi}</span>
+              <Counter value={c.value} className={`font-mono text-3xl tabular-nums tracking-tight md:text-4xl ${c.accent ? "text-gold" : "text-gold-light"}`} />
+              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-ivory/40">{c.label}</p>
             </button>
           ))}
         </div>
@@ -325,7 +393,71 @@ export default function AdminPage() {
           )}
           {tab === "settings" && <SettingsAdmin />}
         </div>
+        </div>
       </div>
+
+      {/* ═══ mobile bottom app bar (phone = primary admin device) ═══ */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-ivory/[0.08] bg-[#0F1114]/[0.97] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-md items-stretch justify-around px-1">
+          {(["overview", "orders", "bookings", "stock"] as const).map((id) => {
+            const t = TABS.find((x) => x.id === id)!;
+            const active = tab === id;
+            return (
+              <button key={id} onClick={() => go(id)} data-cursor="link"
+                className={`flex flex-1 flex-col items-center gap-1 rounded-lg py-2 text-[9px] font-bold uppercase tracking-wide transition-colors ${
+                  active ? "text-gold-light" : "text-ivory/45"
+                }`}>
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d={TAB_ICON[id]} />
+                </svg>
+                {t.label.split(" ")[0]}
+              </button>
+            );
+          })}
+          <button onClick={() => setMore(true)} data-cursor="link"
+            className={`flex flex-1 flex-col items-center gap-1 rounded-lg py-2 text-[9px] font-bold uppercase tracking-wide transition-colors ${
+              more ? "text-gold-light" : "text-ivory/45"
+            }`}>
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+              <circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" />
+            </svg>
+            More
+          </button>
+        </div>
+      </nav>
+
+      {/* ═══ mobile "More" sheet ═══ */}
+      {more && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMore(false)} />
+          <div className="absolute inset-x-0 bottom-0 max-h-[80svh] overflow-y-auto rounded-t-3xl border-t border-ivory/10 bg-[#14171C] p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-ivory/20" />
+            {NAV_GROUPS.map((g) => (
+              <div key={g.name} className="mb-4">
+                <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-ivory/30">{g.name}</p>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {g.tabs.map((id) => {
+                    const t = TABS.find((x) => x.id === id)!;
+                    return (
+                      <button key={id} onClick={() => go(id)} data-cursor="link"
+                        className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left text-[13px] font-medium transition-colors ${
+                          tab === id
+                            ? "border-gold/50 bg-gold/10 text-gold-light"
+                            : "border-ivory/10 bg-ivory/[0.03] text-ivory/70"
+                        }`}>
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <path d={TAB_ICON[id]} />
+                        </svg>
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

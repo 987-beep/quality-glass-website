@@ -95,7 +95,13 @@ function WallSlider({ images }: { images: WallImage[] }) {
   );
 }
 
-export default function Hero({ wallImages = [] }: { wallImages?: WallImage[] }) {
+export default function Hero({
+  wallImages = [],
+  stats,
+}: {
+  wallImages?: WallImage[];
+  stats?: { avg: number; count: number };
+}) {
   const { t } = useLanguage();
 
   const ref = useGsap((el, q) => {
@@ -210,18 +216,29 @@ export default function Hero({ wallImages = [] }: { wallImages?: WallImage[] }) 
             </Magnetic>
           </div>
 
-          <p className="h-note mt-8 flex items-center gap-2.5 text-xs font-medium text-ivory/50">
-            <span className="tracking-[0.15em] text-gold">★★★★★</span>
+          {/* social-proof pill in the design layer (2026 rule: proof above the fold) */}
+          <div className="h-note surface-card mt-8 inline-flex items-center gap-3 rounded-full px-5 py-3">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-gold-light">
+              <span aria-hidden>★</span>
+              {stats && stats.count > 0 ? stats.avg.toFixed(1) : "4.9"}
+            </span>
+            <span className="h-3.5 w-px bg-ivory/15" />
             <a
               href={SHOP.justdial}
               target="_blank"
               rel="noreferrer"
               data-cursor="link"
-              className="underline-offset-4 transition-colors hover:text-gold-light hover:underline"
+              className="text-xs font-medium text-ivory/60 underline-offset-4 transition-colors hover:text-gold-light hover:underline"
             >
-              {t.hero.rating}
+              {stats && stats.count > 0
+                ? `${stats.count} verified local reviews`
+                : t.hero.rating}
             </a>
-          </p>
+            <span className="hidden items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-ivory/35 sm:flex">
+              <span className="h-1.5 w-1.5 rounded-full bg-leaf" />
+              Raebareli
+            </span>
+          </div>
         </div>
 
         {/* gallery wall */}

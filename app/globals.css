@@ -49,6 +49,36 @@
   --glow: 217 138 58;
 }
 
+[data-theme="imperial-plum"] {
+  --c-gold: 214 60 167;      /* #D63CA7 vibrant plum-pink (Frameley plum tuned for dark ink) */
+  --c-gold-light: 243 154 219;
+  --c-gold-dark: 160 24 120;
+  --c-gold-deep: 107 11 80;
+  --glow: 214 60 167;
+}
+
+/* ── editorial surface elevation steps (Linear/Vercel layered pattern) ── */
+.bg-elev-1 { background: #15120B; }
+.bg-elev-2 { background: #1D1810; }
+.bg-elev-3 { background: #262014; }
+.edge-subtle { border: 1px solid rgba(241, 234, 217, 0.07); }
+.surface-card {
+  background: #1D1810;
+  border: 1px solid rgba(241, 234, 217, 0.06);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 32px rgba(0,0,0,0.35);
+}
+
+/* editorial display type */
+.display-xl {
+  font-size: clamp(2.9rem, 8.5vw, 5.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+}
+
+/* micro-interactions (2026: motion with purpose) */
+.press { transition: transform 160ms cubic-bezier(0.34,1.56,0.64,1); }
+.press:active { transform: scale(0.96); }
+
 /* missing utility: the cream passe-partout (mat) inside a frame */
 .bg-mat {
   background: #f3ede0;

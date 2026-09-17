@@ -14,7 +14,8 @@ export type ThemeId =
   | "rose"
   | "sapphire"
   | "platinum"
-  | "amber";
+  | "amber"
+  | "imperial-plum";
 
 export type Theme = {
   id: ThemeId;
@@ -67,6 +68,14 @@ export const THEMES: Theme[] = [
     tagline: "Cool, minimal, gallery-white",
     swatch: "#C4C6D2",
     swatchLight: "#E7E9F0",
+  },
+  {
+    id: "imperial-plum",
+    name: "Imperial Plum",
+    hindi: "शाही जामुन",
+    tagline: "Bold festive magenta (2026 trend pick)",
+    swatch: "#D63CA7",
+    swatchLight: "#F39ADB",
   },
   {
     id: "amber",

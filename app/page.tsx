@@ -16,16 +16,18 @@ import {
   getAllProductImages,
   getDealProducts,
   getBundles,
+  getReviewStats,
 } from "@/lib/server/catalog";
 import { primaryImage } from "@/lib/product-media";
 
 export default async function Home() {
-  const [reviews, featured, allImages, deals, bundles] = await Promise.all([
+  const [reviews, featured, allImages, deals, bundles, reviewStats] = await Promise.all([
     getApprovedReviews(),
     getFeaturedProducts(8),
     getAllProductImages(),
     getDealProducts(),
     getBundles(),
+    getReviewStats(),
   ]);
   // featured product images for the hero background wall (slide show)
   const heroImages = featured.map((p) =>
@@ -33,7 +35,7 @@ export default async function Home() {
   );
   return (
     <main id="top" className="relative">
-      <Hero wallImages={heroImages} />
+      <Hero wallImages={heroImages} stats={reviewStats} />
       <MarqueeStrip />
       {/* Featured section moved between hero and collections */}
       <Featured products={featured} images={allImages} />
