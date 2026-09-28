@@ -28,3 +28,6 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# LOCAL-ONLY secrets doc for local IDEs (Antigravity) — NEVER commit/push
+/INSFORGE-BACKEND-DETAILS.md
